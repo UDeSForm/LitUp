@@ -8,12 +8,6 @@ ALitUpLightEmitter::ALitUpLightEmitter()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
-	MeshOne = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh One"));
-	RootComponent = MeshOne;
-
-	MeshTwo = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh Two"));
-	MeshTwo->SetupAttachment(RootComponent);
 }
 
 // Called when the game starts or when spawned
