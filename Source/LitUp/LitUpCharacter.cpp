@@ -91,6 +91,15 @@ void ALitUpCharacter::Look(const FInputActionValue& Value)
 	// input is a Vector2D
 	FVector2D LookAxisVector = Value.Get<FVector2D>();
 
+	if (bIsInObject)
+	{
+		FOutputDeviceNull outputNull;
+		const FString RotateObjectCommand = FString::Printf(TEXT("RotateControlledObject %f %f"), LookAxisVector.X, LookAxisVector.Y);
+		this->CallFunctionByNameWithArguments(*RotateObjectCommand, outputNull, NULL, true);
+		return;
+	}
+
+
 	if (Controller != nullptr)
 	{
 		// add yaw and pitch input to controller
@@ -107,4 +116,14 @@ void ALitUpCharacter::SetHasRifle(bool bNewHasRifle)
 bool ALitUpCharacter::GetHasRifle()
 {
 	return bHasRifle;
+}
+
+void ALitUpCharacter::SetIsInObject(bool bNewIsInObject)
+{
+	bIsInObject = bNewIsInObject;
+}
+
+bool ALitUpCharacter::GetIsInObject()
+{
+	return bIsInObject;
 }

@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Misc/OutputDeviceNull.h"
 #include "GameFramework/Character.h"
 #include "InputActionValue.h"
 #include "LitUpCharacter.generated.h"
@@ -64,6 +65,19 @@ public:
 	UFUNCTION(BlueprintCallable, Category = Weapon)
 	bool GetHasRifle();
 
+	/** Is character currently controlling an object? */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = ObjectControl)
+		bool bIsInObject;
+
+	/** Setter to set the bool */
+	UFUNCTION(BlueprintCallable, Category = ObjectControl)
+		void SetIsInObject(bool bNewIsInObject);
+
+	/** Getter for the bool */
+	UFUNCTION(BlueprintCallable, Category = ObjectControl)
+		bool GetIsInObject();
+
+
 protected:
 	/** Called for movement input */
 	void Move(const FInputActionValue& Value);
@@ -82,6 +96,7 @@ public:
 	/** Returns FirstPersonCameraComponent subobject **/
 	UCameraComponent* GetFirstPersonCameraComponent() const { return FirstPersonCameraComponent; }
 
-
+	UPROPERTY(EditAnywhere, Category = "BlueprintClass")
+		AActor* bpActor;
 };
 
