@@ -1,44 +1,52 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
+
 #include "LitUpLightEmitter.h"
-#include "GameFramework/Actor.h"
+#include "Components/StaticMeshComponent.h"
+#include "Engine/World.h"
+#include "Containers/UnrealString.h"
 
 // Sets default values
 ALitUpLightEmitter::ALitUpLightEmitter()
 {
-	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+ 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+
+	Cube = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Cube"));
+	SetRootComponent(Cube);
+
+	//Cylinder->SetupAttachment(Cube);
+
+	ALitUpLightRay *lightRay = new ALitUpLightRay;
 }
 
 // Called when the game starts or when spawned
 void ALitUpLightEmitter::BeginPlay()
 {
 	Super::BeginPlay();
+	
+	Cube->SetStaticMesh(CubeMeshAsset);
 }
 
 // Called every frame
 void ALitUpLightEmitter::Tick(float DeltaTime)
 {
-	Super::Tick(DeltaTime);
+	float length = 500.f;
 
-	FHitResult OutHit;
-	FVector Start = GetActorLocation();
+	lightRay->getResult(length, GetActorLocation(), GetActorForwardVector(), this, GetWorld());
+}
 
-	Start.Z += 50.f;
-	Start.X += 200.f;
-
-	FVector ForwardVector = GetActorForwardVector();
-	FVector End = ((ForwardVector * 500.f) + Start);
-	FCollisionQueryParams CollisionParams;
-
-	DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 1, 0, 5);
-
-	if (ActorLineTraceSingle(OutHit, Start, End, ECC_WorldStatic, CollisionParams))
+// This ultimately is what controls whether or not it can even tick at all in the editor view port. 
+//But, it is EVERY view port so it still needs to be blocked from preview windows and junk.
+bool ALitUpLightEmitter::ShouldTickIfViewportsOnly() const
+{
+	if (GetWorld() != nullptr && GetWorld()->WorldType == EWorldType::Editor)
 	{
-		if (GEngine)
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 1.f, FColor::Green, FString::Printf(TEXT("The Component Being Hit is: %s"), *OutHit.GetComponent()->GetName()));
-		}
+		return true;
+	}
+	else
+	{
+		return false;
 	}
 }
 
