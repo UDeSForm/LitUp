@@ -4,7 +4,6 @@
 #include "LitUpLightEmitter.h"
 #include "Components/StaticMeshComponent.h"
 #include "Engine/World.h"
-#include "Containers/UnrealString.h"
 
 // Sets default values
 ALitUpLightEmitter::ALitUpLightEmitter()
@@ -12,28 +11,27 @@ ALitUpLightEmitter::ALitUpLightEmitter()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	Cube = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Cube"));
-	SetRootComponent(Cube);
+	Emitter = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("LightEmitter"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh>CubeMeshAsset(TEXT("StaticMesh'/Engine/BasicShapes/Cube.Cube'"));
+	Emitter->SetStaticMesh(CubeMeshAsset.Object);
+	SetRootComponent(Emitter);
 
-	//Cylinder->SetupAttachment(Cube);
-
-	ALitUpLightRay *lightRay = new ALitUpLightRay;
+	LightRay = CreateDefaultSubobject<UChildActorComponent>(TEXT("LightRay"));
+	LightRay->SetChildActorClass(ALitUpLightRay::StaticClass());
+	LightRay->SetupAttachment(Emitter);
 }
 
 // Called when the game starts or when spawned
 void ALitUpLightEmitter::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	Cube->SetStaticMesh(CubeMeshAsset);
+	Emitter->SetStaticMesh(EmitterMeshAsset);
 }
 
 // Called every frame
 void ALitUpLightEmitter::Tick(float DeltaTime)
 {
-	float length = 500.f;
-
-	lightRay->getResult(length, GetActorLocation(), GetActorForwardVector(), this, GetWorld());
+	Super::Tick(DeltaTime);
 }
 
 // This ultimately is what controls whether or not it can even tick at all in the editor view port. 
@@ -49,4 +47,3 @@ bool ALitUpLightEmitter::ShouldTickIfViewportsOnly() const
 		return false;
 	}
 }
-

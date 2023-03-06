@@ -13,16 +13,13 @@ class LITUP_API ALitUpLightEmitter : public AActor
 	GENERATED_BODY()
 	
 	UPROPERTY(VisibleDefaultsOnly)
-	UStaticMeshComponent* Cube;
+		UStaticMeshComponent* Emitter;
+
+	UPROPERTY(EditAnywhere)
+		UStaticMesh* EmitterMeshAsset;
 
 	UPROPERTY(VisibleDefaultsOnly)
-	UStaticMeshComponent* Cylinder;
-
-	UPROPERTY(EditAnywhere)
-	UMaterial* LaserMaterial;
-
-	UPROPERTY(EditAnywhere)
-	UStaticMesh* CubeMeshAsset;
+		UChildActorComponent* LightRay;
 
 	/** Allows Tick To happen in the editor viewport*/
 	virtual bool ShouldTickIfViewportsOnly() const override;
@@ -38,7 +35,4 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-
-private:
-	ALitUpLightRay* lightRay;
 };

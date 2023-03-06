@@ -4,36 +4,33 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "LitUpLightRay.generated.h"
+#include "LitUpLightTarget.generated.h"
 
 UCLASS()
-class LITUP_API ALitUpLightRay : public AActor
+class LITUP_API ALitUpLightTarget : public AActor
 {
 	GENERATED_BODY()
-
+	
 	UPROPERTY(VisibleDefaultsOnly)
-		USceneComponent* Origin;
+		UStaticMeshComponent* Target;
 
-	UPROPERTY(VisibleDefaultsOnly)
-		UStaticMeshComponent* LightRay;
-
-	UPROPERTY(VisibleDefaultsOnly)
-		UMaterial* LaserMaterial;
+	UPROPERTY(EditAnywhere)
+		UStaticMesh* TargetMeshAsset;
 
 	/** Allows Tick To happen in the editor viewport*/
 	virtual bool ShouldTickIfViewportsOnly() const override;
 
-public:
+public:	
 	// Sets default values for this actor's properties
-	ALitUpLightRay();
+	ALitUpLightTarget();
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:
+public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	float length = 10000.f;
+	void exec();
 };
