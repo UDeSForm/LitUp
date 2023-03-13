@@ -6,7 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "LitUpLightRay.generated.h"
 
-UCLASS()
+UCLASS(Transient)
 class LITUP_API ALitUpLightRay : public AActor
 {
 	GENERATED_BODY()
