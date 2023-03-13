@@ -4,15 +4,20 @@
 #include "LitUpLightRay.h"
 #include "Components/StaticMeshComponent.h"
 #include "Engine/World.h"
+#include "Math/UnrealMathUtility.h"
 
 //Ajouter les include des Actors ici
 #include "LitUpLightTarget.h"
+
+DECLARE_LOG_CATEGORY_EXTERN(LogLightRay, Log, All);
+DEFINE_LOG_CATEGORY(LogLightRay);
 
 // Sets default values
 ALitUpLightRay::ALitUpLightRay()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bStartWithTickEnabled = true;
 
 	Origin = CreateDefaultSubobject<USceneComponent>(TEXT("Origin"));
 	SetRootComponent(Origin);
@@ -33,6 +38,8 @@ ALitUpLightRay::ALitUpLightRay()
 void ALitUpLightRay::BeginPlay()
 {
 	Super::BeginPlay();
+
+	goNext(false);
 }
 
 // Called every frame
@@ -56,30 +63,66 @@ void ALitUpLightRay::Tick(float DeltaTime)
 
 		if (OutHit.GetActor()->IsA(ALitUpLightTarget::StaticClass()))
 		{
-			Cast<ALitUpLightTarget>(OutHit.GetActor())->exec();
+			//if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::`Green, TEXT("Target is getting hit!"));
+			//UE_LOG(LogLightRay, Display, TEXT("Target is getting hit!"));
+
+			//Pour tests
+			goNext(true);
+
+			FVector Reflection = FMath::GetReflectionVector(ForwardVector, OutHit.Normal);
+			
+			if (nextLightRay) nextLightRay->SetActorTransform(FTransform(Reflection.Rotation(), OutHit.Location + (Reflection * 0.0001)));
 		}
+//		else if (OutHit.GetActor()->IsA(ALitUpMirror::StaticClass()))
+//		{
+//			goNext(true);
+//
+//			FVector Reflection;
+//
+//			//Calculer le vecteur ici
+//
+//			nextLightRay->SetActorTransform(FTransform(Reflection.Rotation(), OutHit.Location + (Reflection * 0.0001)));
+//		}
+//		else if (OutHit.GetActor()->IsA(ALitUpPrism::StaticClass()))
+//		{
+//			goNext(true);
+//
+//			FVector Refraction;
+//
+//			//Calculer le vecteur ici
+//
+//			nextLightRay->SetActorTransform(FTransform(Refraction.Rotation(), OutHit.Location + (Refraction * 0.0001)));
+//		}
+//		else if (OutHit.GetActor()->IsA(ALitUpDiffractor::StaticClass()))
+//		{
+//			goNext(false);
+//
+//			//Calculer les trucs ici
+//		}
 
 		/*
 		Exemple pour ajouter des objets qui interagissent avec la lumière
 
-		Prendre exemple sur LightTarget ci-haut et dans LitUpLightTarget.h et LitUpLightTarget.cpp
+		Prendre exemple ci-haut
 
 		Créer une classe Actor
 		Ajouter le include du .h en ici en haut
 		Ajouter un else if suivant le template ci-dessous
-		Ajouter une fonction nommée exec dans la classe de l'Actor
-		Écrire le code à exécuter lorsque l'Actor est touché dans la fonction exec
+		Mettre la fonction goNext(true/false) true = le rayon de lumière continue, false = le rayon de lumière s'arrête
+		Écrire le code à exécuter lorsque l'Actor est touché dans le if
 
 		else if (OutHit.GetActor()->IsA(/La classe de l'Actor/::StaticClass()))
 		{
-			Cast</La classe de l'Actor/>(OutHit.GetActor())->exec();
+			goNext(true/false)
 		}
 		*/
 
 		else
 		{
-			if (GEngine)
-				GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, TEXT("No hit!"));
+			goNext(false);
+
+			//if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, TEXT("No hit!"));
+			//UE_LOG(LogLightRay, Display, TEXT("No hit!"));
 		}
 	}
 	else
@@ -100,4 +143,41 @@ bool ALitUpLightRay::ShouldTickIfViewportsOnly() const
 	{
 		return false;
 	}
+}
+
+inline void ALitUpLightRay::goNext(bool goNext)
+{
+	if (next == true && goNext == true)
+	{
+		return;
+	}
+	else if (next == false && goNext == true && maxRays > 0)
+	{
+		next = true;
+
+		nextLightRay = GetWorld()->SpawnActor<ALitUpLightRay>(ALitUpLightRay::StaticClass());
+		nextLightRay->maxRays = maxRays - 1;
+		nextLightRay->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform);
+
+		//if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, TEXT("New ray created!"));
+		//UE_LOG(LogLightRay, Display, TEXT("New ray created!"));
+	}
+	else
+	{
+		next = false;
+
+		if (nextLightRay)
+		{
+			nextLightRay->goNext(false);
+
+			nextLightRay->K2_DestroyActor();
+			nextLightRay = nullptr;
+			if (GEngine) GEngine->ForceGarbageCollection(true);
+
+			//if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, TEXT("Ray deleted!"));
+			//UE_LOG(LogLightRay, Display, TEXT("Ray deleted!"));
+		}
+	}
+
+	return;
 }

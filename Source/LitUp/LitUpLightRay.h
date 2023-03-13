@@ -20,6 +20,9 @@ class LITUP_API ALitUpLightRay : public AActor
 	UPROPERTY(VisibleDefaultsOnly)
 		UMaterial* LaserMaterial;
 
+	UPROPERTY(VisibleDefaultsOnly)
+		ALitUpLightRay* nextLightRay = nullptr;
+
 	/** Allows Tick To happen in the editor viewport*/
 	virtual bool ShouldTickIfViewportsOnly() const override;
 
@@ -36,4 +39,10 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	float length = 10000.f;
+
+private:
+	bool next = false;
+	int maxRays = 4;
+
+	inline void goNext(bool goNext);
 };
