@@ -45,4 +45,6 @@ private:
 	int maxRays = 4;
 
 	inline void goNext(bool goNext);
+	inline FVector Reflection(const FVector& Direction, const FVector& SurfaceNormal);
+	inline FVector Refraction(const FVector& Direction, const FVector& SurfaceNormal, const float& RefractionIndex);
 };

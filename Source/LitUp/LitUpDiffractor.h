@@ -4,25 +4,24 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "LitUpLightTarget.generated.h"
+#include "LitUpDiffractor.generated.h"
 
 UCLASS()
-class LITUP_API ALitUpLightTarget : public AActor
+class LITUP_API ALitUpDiffractor : public AActor
 {
 	GENERATED_BODY()
 	
 	UPROPERTY(VisibleDefaultsOnly)
-		UStaticMeshComponent* Target;
+		UStaticMeshComponent* Diffractor;
 
 	UPROPERTY(EditAnywhere)
-		UStaticMesh* TargetMeshAsset;
+		UStaticMesh* DiffractorMeshAsset;
 
 	/** Allows Tick To happen in the editor viewport*/
 	virtual bool ShouldTickIfViewportsOnly() const override;
-
 public:	
 	// Sets default values for this actor's properties
-	ALitUpLightTarget();
+	ALitUpDiffractor();
 
 protected:
 	// Called when the game starts or when spawned

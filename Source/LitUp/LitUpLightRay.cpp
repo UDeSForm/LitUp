@@ -8,6 +8,9 @@
 
 //Ajouter les include des Actors ici
 #include "LitUpLightTarget.h"
+#include "LitUpMirror.h"
+#include "LitUpPrism.h"
+#include "LitUpDiffractor.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(LogLightRay, Log, All);
 DEFINE_LOG_CATEGORY(LogLightRay);
@@ -67,56 +70,32 @@ void ALitUpLightRay::Tick(float DeltaTime)
 			//UE_LOG(LogLightRay, Display, TEXT("Target is getting hit!"));
 
 			//Pour tests
+			goNext(false);
+
+			Cast<ALitUpLightTarget>(OutHit.GetActor())->exec();
+		}
+		else if (OutHit.GetActor()->IsA(ALitUpMirror::StaticClass()))
+		{
 			goNext(true);
 
-			FVector Reflection = FMath::GetReflectionVector(ForwardVector, OutHit.Normal);
-			
-			if (nextLightRay) nextLightRay->SetActorTransform(FTransform(Reflection.Rotation(), OutHit.Location + (Reflection * 0.0001)));
+			FVector reflection = Reflection(ForwardVector, OutHit.Normal);
+
+			if (nextLightRay) nextLightRay->SetActorTransform(FTransform(reflection.Rotation(), OutHit.Location + (reflection * 0.0001)));
 		}
-//		else if (OutHit.GetActor()->IsA(ALitUpMirror::StaticClass()))
-//		{
-//			goNext(true);
-//
-//			FVector Reflection;
-//
-//			//Calculer le vecteur ici
-//
-//			nextLightRay->SetActorTransform(FTransform(Reflection.Rotation(), OutHit.Location + (Reflection * 0.0001)));
-//		}
-//		else if (OutHit.GetActor()->IsA(ALitUpPrism::StaticClass()))
-//		{
-//			goNext(true);
-//
-//			FVector Refraction;
-//
-//			//Calculer le vecteur ici
-//
-//			nextLightRay->SetActorTransform(FTransform(Refraction.Rotation(), OutHit.Location + (Refraction * 0.0001)));
-//		}
-//		else if (OutHit.GetActor()->IsA(ALitUpDiffractor::StaticClass()))
-//		{
-//			goNext(false);
-//
-//			//Calculer les trucs ici
-//		}
-
-		/*
-		Exemple pour ajouter des objets qui interagissent avec la lumière
-
-		Prendre exemple ci-haut
-
-		Créer une classe Actor
-		Ajouter le include du .h en ici en haut
-		Ajouter un else if suivant le template ci-dessous
-		Mettre la fonction goNext(true/false) true = le rayon de lumière continue, false = le rayon de lumière s'arrête
-		Écrire le code à exécuter lorsque l'Actor est touché dans le if
-
-		else if (OutHit.GetActor()->IsA(/La classe de l'Actor/::StaticClass()))
+		else if (OutHit.GetActor()->IsA(ALitUpPrism::StaticClass()))
 		{
-			goNext(true/false)
-		}
-		*/
+			goNext(true);
 
+			FVector refraction = Refraction(ForwardVector, OutHit.Normal, Cast<ALitUpPrism>(OutHit.GetActor())->refractionIndex);
+
+			if (nextLightRay) nextLightRay->SetActorTransform(FTransform(refraction.Rotation(), OutHit.Location + (refraction * 0.0001)));
+		}
+		else if (OutHit.GetActor()->IsA(ALitUpDiffractor::StaticClass()))
+		{
+			goNext(false);
+
+			Cast<ALitUpDiffractor>(OutHit.GetActor())->exec();
+		}
 		else
 		{
 			goNext(false);
@@ -180,4 +159,14 @@ inline void ALitUpLightRay::goNext(bool goNext)
 	}
 
 	return;
+}
+
+inline FVector ALitUpLightRay::Reflection(const FVector& Direction, const FVector& SurfaceNormal)
+{
+	return FMath::GetReflectionVector(Direction, SurfaceNormal); // À coder
+}
+
+inline FVector ALitUpLightRay::Refraction(const FVector& Direction, const FVector& SurfaceNormal, const float& RefractionIndex)
+{
+	return FVector(0,0,0); // À coder
 }

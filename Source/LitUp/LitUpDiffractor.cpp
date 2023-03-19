@@ -1,36 +1,37 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "LitUpLightTarget.h"
+#include "LitUpDiffractor.h"
 
 // Sets default values
-ALitUpLightTarget::ALitUpLightTarget()
+ALitUpDiffractor::ALitUpDiffractor()
 {
-	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+ 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	Target = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("LightTarget"));
+	Diffractor = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Diffractor"));
 	static ConstructorHelpers::FObjectFinder<UStaticMesh>CubeMeshAsset(TEXT("StaticMesh'/Engine/BasicShapes/Cube.Cube'"));
-	Target->SetStaticMesh(CubeMeshAsset.Object);
-	SetRootComponent(Target);
+	Diffractor->SetStaticMesh(CubeMeshAsset.Object);
+	SetRootComponent(Diffractor);
 }
 
 // Called when the game starts or when spawned
-void ALitUpLightTarget::BeginPlay()
+void ALitUpDiffractor::BeginPlay()
 {
 	Super::BeginPlay();
-	Target->SetStaticMesh(TargetMeshAsset);
+	Diffractor->SetStaticMesh(DiffractorMeshAsset);
 }
 
 // Called every frame
-void ALitUpLightTarget::Tick(float DeltaTime)
+void ALitUpDiffractor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
 }
 
 // This ultimately is what controls whether or not it can even tick at all in the editor view port. 
 //But, it is EVERY view port so it still needs to be blocked from preview windows and junk.
-bool ALitUpLightTarget::ShouldTickIfViewportsOnly() const
+bool ALitUpDiffractor::ShouldTickIfViewportsOnly() const
 {
 	if (GetWorld() != nullptr && GetWorld()->WorldType == EWorldType::Editor)
 	{
@@ -42,7 +43,7 @@ bool ALitUpLightTarget::ShouldTickIfViewportsOnly() const
 	}
 }
 
-void ALitUpLightTarget::exec()
+void ALitUpDiffractor::exec()
 {
 
 }

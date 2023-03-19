@@ -1,36 +1,37 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "LitUpLightTarget.h"
+#include "LitUpMirror.h"
 
 // Sets default values
-ALitUpLightTarget::ALitUpLightTarget()
+ALitUpMirror::ALitUpMirror()
 {
-	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+ 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	Target = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("LightTarget"));
+	Mirror = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mirror"));
 	static ConstructorHelpers::FObjectFinder<UStaticMesh>CubeMeshAsset(TEXT("StaticMesh'/Engine/BasicShapes/Cube.Cube'"));
-	Target->SetStaticMesh(CubeMeshAsset.Object);
-	SetRootComponent(Target);
+	Mirror->SetStaticMesh(CubeMeshAsset.Object);
+	SetRootComponent(Mirror);
 }
 
 // Called when the game starts or when spawned
-void ALitUpLightTarget::BeginPlay()
+void ALitUpMirror::BeginPlay()
 {
 	Super::BeginPlay();
-	Target->SetStaticMesh(TargetMeshAsset);
+	Mirror->SetStaticMesh(MirrorMeshAsset);
 }
 
 // Called every frame
-void ALitUpLightTarget::Tick(float DeltaTime)
+void ALitUpMirror::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
 }
 
 // This ultimately is what controls whether or not it can even tick at all in the editor view port. 
 //But, it is EVERY view port so it still needs to be blocked from preview windows and junk.
-bool ALitUpLightTarget::ShouldTickIfViewportsOnly() const
+bool ALitUpMirror::ShouldTickIfViewportsOnly() const
 {
 	if (GetWorld() != nullptr && GetWorld()->WorldType == EWorldType::Editor)
 	{
@@ -40,9 +41,4 @@ bool ALitUpLightTarget::ShouldTickIfViewportsOnly() const
 	{
 		return false;
 	}
-}
-
-void ALitUpLightTarget::exec()
-{
-
 }
