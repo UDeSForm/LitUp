@@ -19,6 +19,7 @@ ALitUpLightEmitter::ALitUpLightEmitter()
 	LightRay = CreateDefaultSubobject<UChildActorComponent>(TEXT("LightRay"));
 	LightRay->SetChildActorClass(ALitUpLightRay::StaticClass());
 	LightRay->SetupAttachment(Emitter);
+	//Cast<ALitUpLightRay>(LightRay)->maxRays = MaxRays;
 }
 
 // Called when the game starts or when spawned
