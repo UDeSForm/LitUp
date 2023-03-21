@@ -6,7 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "LitUpLightRay.generated.h"
 
-UCLASS(Transient)
+UCLASS()
 class LITUP_API ALitUpLightRay : public AActor
 {
 	GENERATED_BODY()
@@ -39,10 +39,12 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	float length = 10000.f;
+	int maxRays = 4;
 
 private:
 	bool next = false;
-	int maxRays = 4;
 
 	inline void goNext(bool goNext);
+	inline FVector Reflection(const FVector& Direction, const FVector& SurfaceNormal);
+	inline FVector Refraction(const FVector& Direction, const FVector& SurfaceNormal, const float& RefractionIndex);
 };

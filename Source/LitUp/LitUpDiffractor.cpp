@@ -1,43 +1,37 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "LitUpLightEmitter.h"
-#include "Components/StaticMeshComponent.h"
-#include "Engine/World.h"
+#include "LitUpDiffractor.h"
 
 // Sets default values
-ALitUpLightEmitter::ALitUpLightEmitter()
+ALitUpDiffractor::ALitUpDiffractor()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	Emitter = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("LightEmitter"));
+	Diffractor = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Diffractor"));
 	static ConstructorHelpers::FObjectFinder<UStaticMesh>CubeMeshAsset(TEXT("StaticMesh'/Engine/BasicShapes/Cube.Cube'"));
-	Emitter->SetStaticMesh(CubeMeshAsset.Object);
-	SetRootComponent(Emitter);
-
-	LightRay = CreateDefaultSubobject<UChildActorComponent>(TEXT("LightRay"));
-	LightRay->SetChildActorClass(ALitUpLightRay::StaticClass());
-	LightRay->SetupAttachment(Emitter);
-	//Cast<ALitUpLightRay>(LightRay)->maxRays = MaxRays;
+	Diffractor->SetStaticMesh(CubeMeshAsset.Object);
+	SetRootComponent(Diffractor);
 }
 
 // Called when the game starts or when spawned
-void ALitUpLightEmitter::BeginPlay()
+void ALitUpDiffractor::BeginPlay()
 {
 	Super::BeginPlay();
-	Emitter->SetStaticMesh(EmitterMeshAsset);
+	Diffractor->SetStaticMesh(DiffractorMeshAsset);
 }
 
 // Called every frame
-void ALitUpLightEmitter::Tick(float DeltaTime)
+void ALitUpDiffractor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
 }
 
 // This ultimately is what controls whether or not it can even tick at all in the editor view port. 
 //But, it is EVERY view port so it still needs to be blocked from preview windows and junk.
-bool ALitUpLightEmitter::ShouldTickIfViewportsOnly() const
+bool ALitUpDiffractor::ShouldTickIfViewportsOnly() const
 {
 	if (GetWorld() != nullptr && GetWorld()->WorldType == EWorldType::Editor)
 	{
@@ -47,4 +41,9 @@ bool ALitUpLightEmitter::ShouldTickIfViewportsOnly() const
 	{
 		return false;
 	}
+}
+
+void ALitUpDiffractor::exec()
+{
+
 }
