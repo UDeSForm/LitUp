@@ -21,6 +21,9 @@ class LITUP_API ALitUpLightEmitter : public AActor
 	UPROPERTY(VisibleDefaultsOnly)
 		UChildActorComponent* LightRay;
 
+	UPROPERTY(EditAnywhere)
+		int MaxRays;
+
 	/** Allows Tick To happen in the editor viewport*/
 	virtual bool ShouldTickIfViewportsOnly() const override;
 

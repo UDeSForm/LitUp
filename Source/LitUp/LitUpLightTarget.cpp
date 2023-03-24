@@ -44,5 +44,5 @@ bool ALitUpLightTarget::ShouldTickIfViewportsOnly() const
 
 void ALitUpLightTarget::exec()
 {
-
+	if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, TEXT("Hit!"));
 }

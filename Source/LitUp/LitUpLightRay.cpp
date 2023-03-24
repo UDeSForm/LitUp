@@ -20,7 +20,6 @@ ALitUpLightRay::ALitUpLightRay()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-	PrimaryActorTick.bStartWithTickEnabled = true;
 
 	Origin = CreateDefaultSubobject<USceneComponent>(TEXT("Origin"));
 	SetRootComponent(Origin);
@@ -41,8 +40,6 @@ ALitUpLightRay::ALitUpLightRay()
 void ALitUpLightRay::BeginPlay()
 {
 	Super::BeginPlay();
-
-	goNext(false);
 }
 
 // Called every frame
@@ -69,7 +66,6 @@ void ALitUpLightRay::Tick(float DeltaTime)
 			//if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::`Green, TEXT("Target is getting hit!"));
 			//UE_LOG(LogLightRay, Display, TEXT("Target is getting hit!"));
 
-			//Pour tests
 			goNext(false);
 
 			Cast<ALitUpLightTarget>(OutHit.GetActor())->exec();
@@ -134,7 +130,9 @@ inline void ALitUpLightRay::goNext(bool goNext)
 	{
 		next = true;
 
-		nextLightRay = GetWorld()->SpawnActor<ALitUpLightRay>(ALitUpLightRay::StaticClass());
+		FActorSpawnParameters sp;
+		sp.ObjectFlags = RF_Transient;
+		nextLightRay = GetWorld()->SpawnActor<ALitUpLightRay>(ALitUpLightRay::StaticClass(), sp);
 		nextLightRay->maxRays = maxRays - 1;
 		nextLightRay->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform);
 
