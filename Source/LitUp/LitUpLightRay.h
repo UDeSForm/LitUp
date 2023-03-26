@@ -40,11 +40,13 @@ public:
 
 	float length = 10000.f;
 	int maxRays = 4;
+	float currentRefractionIndex = 1.f;
 
 private:
 	bool next = false;
 
 	inline void goNext(bool goNext);
 	inline FVector Reflection(const FVector& Direction, const FVector& SurfaceNormal);
-	inline FVector Refraction(const FVector& Direction, const FVector& SurfaceNormal, const float& RefractionIndex);
+	inline FVector Refraction(const FVector& Direction, const FVector& SurfaceNormal, const float& CurrentRefractionIndex, const float& ObjectRefractionIndex);
+
 };
