@@ -93,7 +93,7 @@ void ALitUpCharacter::Look(const FInputActionValue& Value)
 
 	if (bIsInObject)
 	{
-		GEngine->AddOnScreenDebugMessage(-10, 1.f, FColor::Yellow, "HELP ME");
+		//GEngine->AddOnScreenDebugMessage(-10, 1.f, FColor::Yellow, "HELP ME");
 		FOutputDeviceNull outputNull;
 		const FString RotateObjectCommand = FString::Printf(TEXT("RotateControlledObject %f %f"), LookAxisVector.X, LookAxisVector.Y);
 		this->CallFunctionByNameWithArguments(*RotateObjectCommand, outputNull, NULL, true);

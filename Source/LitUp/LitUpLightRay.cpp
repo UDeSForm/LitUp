@@ -166,5 +166,28 @@ inline FVector ALitUpLightRay::Reflection(const FVector& Direction, const FVecto
 
 inline FVector ALitUpLightRay::Refraction(const FVector& Direction, const FVector& SurfaceNormal, const float& RefractionIndex)
 {
-	return FVector(0,0,0); // À coder
+	// TODO Test en 3D a la place de 2D
+
+	// Retourne le vecteur du rayon réfracté
+	GEngine->AddOnScreenDebugMessage(-11, 1.f, FColor::Yellow, FString::Printf(TEXT("[Refraction_Direction_Param] X: %f, Y: %f, Z: %f"), Direction.X, Direction.Y, Direction.Z));
+	GEngine->AddOnScreenDebugMessage(-12, 1.f, FColor::Yellow, FString::Printf(TEXT("[Refraction_SurfaceNormal_Param] X: %f, Y: %f, Z: %f"), SurfaceNormal.X, SurfaceNormal.Y, SurfaceNormal.Z));
+	GEngine->AddOnScreenDebugMessage(-13, 1.f, FColor::Yellow, FString::Printf(TEXT("Angle impact = %f deg"), FMath::RadiansToDegrees(FMath::Acos(FVector::DotProduct(SurfaceNormal*-1, Direction))))); // Bon angle par rapport à la normale
+	
+	double n = 1.f / RefractionIndex;
+	double cosIncident = FVector::DotProduct(SurfaceNormal * -1, Direction);
+	double sinRefractedSquared = n * n * (1.0 - (cosIncident * cosIncident));
+	if (sinRefractedSquared > 1.0)
+	{
+		// RTI applicable ici
+		GEngine->AddOnScreenDebugMessage(-14, 1.f, FColor::Yellow, FString::Printf(TEXT("RTI")));
+		return FVector(0, 0, 0);
+	}
+	else
+	{
+		double cosRefracted = FMath::Sqrt(1.0 - sinRefractedSquared);
+		GEngine->AddOnScreenDebugMessage(-14, 1.f, FColor::Yellow, FString::Printf(TEXT("Angle refracte = %f deg"), FMath::RadiansToDegrees(FMath::Acos(cosRefracted)))); // Bon angle
+		return n * Direction + (n * cosIncident - cosRefracted) * SurfaceNormal;
+	}
+
+	//return FVector(0,0,0); // À coder
 }
