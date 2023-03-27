@@ -22,7 +22,10 @@ class LITUP_API ALitUpLightEmitter : public AActor
 		UChildActorComponent* LightRay;
 
 	UPROPERTY(EditAnywhere)
-		int MaxRays;
+		int MaxRays = 4;
+
+	UPROPERTY(EditAnywhere)
+		float WaveLength = 700;
 
 	/** Allows Tick To happen in the editor viewport*/
 	virtual bool ShouldTickIfViewportsOnly() const override;

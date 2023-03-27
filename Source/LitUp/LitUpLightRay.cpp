@@ -5,6 +5,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Engine/World.h"
 #include "Math/UnrealMathUtility.h"
+#include <Materials/MaterialInstanceConstant.h>
 
 //Ajouter les include des Actors ici
 #include "LitUpLightTarget.h"
@@ -26,10 +27,14 @@ ALitUpLightRay::ALitUpLightRay()
 
 	LightRay = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("LightRay"));
 	LightRay->SetupAttachment(Origin);
+
 	static ConstructorHelpers::FObjectFinder<UStaticMesh>CylinderMeshAsset(TEXT("StaticMesh'/Engine/BasicShapes/Cylinder.Cylinder'"));
 	LightRay->SetStaticMesh(CylinderMeshAsset.Object);
+
 	static ConstructorHelpers::FObjectFinder<UMaterial>laserMaterial(TEXT("Material '/Game/Materials/M_Laser.M_Laser'"));
-	LightRay->SetMaterial(0, laserMaterial.Object);
+	dynamicLaserMaterialInstanceDynamic = UMaterialInstanceDynamic::Create(laserMaterial.Object, LightRay);
+	LightRay->SetMaterial(0, dynamicLaserMaterialInstanceDynamic);
+
 	LightRay->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	LightRay->SetRelativeTransform(FTransform(FRotator(90, 0, 0), FVector(length / 2.f, 0, 0), FVector(0.05, 0.05, length / 100.f)));
 	LightRay->CastShadow = false;
@@ -47,6 +52,10 @@ void ALitUpLightRay::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if (nextLightRay) nextLightRay->wavelength = wavelength;
+	FVector laserColor = calculateColorFromWaveLength();
+	dynamicLaserMaterialInstanceDynamic->SetVectorParameterValue(FName("LaserColor"), FVector4(laserColor.X, laserColor.Y, laserColor.Z, 1));
+	
 	FVector Start = Origin->GetComponentLocation();
 	FVector ForwardVector = Origin->GetForwardVector();
 	FHitResult OutHit;
@@ -83,7 +92,7 @@ void ALitUpLightRay::Tick(float DeltaTime)
 		{
 			goNext(true);
 
-			FVector refraction = Refraction(ForwardVector, OutHit.Normal, currentRefractionIndex, Cast<ALitUpPrism>(OutHit.GetActor())->refractionIndex);
+			FVector refraction = Refraction(ForwardVector, OutHit.Normal, currentRefractionIndex, Cast<ALitUpPrism>(OutHit.GetActor())->getRefractionIndex());
 
 			if (nextLightRay)
 			{
@@ -193,4 +202,75 @@ inline FVector ALitUpLightRay::Refraction(const FVector& Direction, const FVecto
 		GEngine->AddOnScreenDebugMessage(-14, 1.f, FColor::Yellow, FString::Printf(TEXT("Angle refracte = %f deg"), FMath::RadiansToDegrees(FMath::Acos(cosRefracted)))); // Bon angle
 		return n * Direction + (n * cosIncident - cosRefracted) * SurfaceNormal;
 	}
+}
+
+inline FVector ALitUpLightRay::calculateColorFromWaveLength()
+{
+	// Credits: Dan Bruton http://www.physics.sfasu.edu/astro/color.html
+	double red = 0.0;
+	double green = 0.0;
+	double blue = 0.0;
+
+	if ((380.0 <= wavelength) && (wavelength <= 439.0))
+	{
+		red = -(wavelength - 440.0) / (440.0 - 380.0);
+		green = 0.0;
+		blue = 1.0;
+	}
+	else if ((440.0 <= wavelength) && (wavelength <= 489.0))
+	{
+		red = 0.0;
+		green = (wavelength - 440.0) / (490.0 - 440.0);
+		blue = 1.0;
+	}
+	else if ((490.0 <= wavelength) && (wavelength <= 509.0))
+	{
+		red = 0.0;
+		green = 1.0;
+		blue = -(wavelength - 510.0) / (510.0 - 490.0);
+	}
+	else if ((510.0 <= wavelength) && (wavelength <= 579.0))
+	{
+		red = (wavelength - 510.0) / (580.0 - 510.0);
+		green = 1.0;
+		blue = 0.0;
+	}
+	else if ((580.0 <= wavelength) && (wavelength <= 644.0))
+	{
+		red = 1.0;
+		green = -(wavelength - 645.0) / (645.0 - 580.0);
+		blue = 0.0;
+	}
+	else if ((645.0 <= wavelength) && (wavelength <= 780.0))
+	{
+		red = 1.0;
+		green = 0.0;
+		blue = 0.0;
+	}
+
+	double factor = 0.0;
+
+	if ((380.0 <= wavelength) && (wavelength <= 419.0))
+		factor = 0.3 + 0.7 * (wavelength - 380.0) / (420.0 - 380.0);
+	else if ((420.0 <= wavelength) && (wavelength <= 700.0))
+		factor = 1.0;
+	else if ((701.0 <= wavelength) && (wavelength <= 780.0))
+		factor = 0.3 + 0.7 * (780.0 - wavelength) / (780.0 - 700.0);
+	else
+		factor = 0.0;
+
+	FVector result;
+
+	const double gamma = 0.8;
+	const double intensity_max = 255.0;
+
+#define round(d) std::floor(d + 0.5)
+
+	result.X = static_cast<unsigned char>((red == 0.0) ? red : round(intensity_max * std::pow(red * factor, gamma)));
+	result.Y = static_cast<unsigned char>((green == 0.0) ? green : round(intensity_max * std::pow(green * factor, gamma)));
+	result.Z = static_cast<unsigned char>((blue == 0.0) ? blue : round(intensity_max * std::pow(blue * factor, gamma)));
+
+#undef round
+
+	return result;
 }

@@ -17,6 +17,9 @@ class LITUP_API ALitUpPrism : public AActor
 	UPROPERTY(EditAnywhere)
 		UStaticMesh* PrismMeshAsset;
 
+	UPROPERTY(EditAnywhere)
+		float RefractionIndex = 1.5f;
+
 	/** Allows Tick To happen in the editor viewport*/
 	virtual bool ShouldTickIfViewportsOnly() const override;
 public:	
@@ -31,5 +34,5 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	float refractionIndex = 1.5f;
+	float getRefractionIndex();
 };

@@ -26,7 +26,6 @@ void ALitUpPrism::BeginPlay()
 void ALitUpPrism::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
 // This ultimately is what controls whether or not it can even tick at all in the editor view port. 
@@ -41,4 +40,9 @@ bool ALitUpPrism::ShouldTickIfViewportsOnly() const
 	{
 		return false;
 	}
+}
+
+float ALitUpPrism::getRefractionIndex()
+{
+	return RefractionIndex;
 }
