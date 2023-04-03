@@ -19,13 +19,13 @@ class LITUP_API ALitUpLightEmitter : public AActor
 		UStaticMesh* EmitterMeshAsset;
 
 	UPROPERTY(VisibleDefaultsOnly)
-		UChildActorComponent* LightRay;
+		ALitUpLightRay* LightRay = nullptr;
 
 	UPROPERTY(EditAnywhere)
-		int MaxRays = 4;
+		int MaxRays = 1000;
 
 	UPROPERTY(EditAnywhere)
-		float WaveLength = 700;
+		float WaveLength = 780.f;
 
 	/** Allows Tick To happen in the editor viewport*/
 	virtual bool ShouldTickIfViewportsOnly() const override;
@@ -41,4 +41,7 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+private:
+	bool ray = false;
 };

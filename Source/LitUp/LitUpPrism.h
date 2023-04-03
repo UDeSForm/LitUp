@@ -12,7 +12,17 @@ class LITUP_API ALitUpPrism : public AActor
 	GENERATED_BODY()
 	
 	UPROPERTY(VisibleDefaultsOnly)
-		UStaticMeshComponent* Prism;
+		UStaticMeshComponent* PrismFaceTop;
+	UPROPERTY(VisibleDefaultsOnly)
+		UStaticMeshComponent* PrismFaceFront;
+	UPROPERTY(VisibleDefaultsOnly)
+		UStaticMeshComponent* PrismFaceBack;
+	UPROPERTY(VisibleDefaultsOnly)
+		UStaticMeshComponent* PrismFaceLeft;
+	UPROPERTY(VisibleDefaultsOnly)
+		UStaticMeshComponent* PrismFaceRight;
+	UPROPERTY(VisibleDefaultsOnly)
+		UStaticMeshComponent* PrismFaceBottom;
 
 	UPROPERTY(EditAnywhere)
 		UStaticMesh* PrismMeshAsset;
@@ -35,4 +45,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	float getRefractionIndex();
+
+//private:
+//	UMaterialInstanceDynamic* dynamicPrismMaterialInstanceDynamic;
 };

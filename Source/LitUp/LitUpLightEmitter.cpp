@@ -15,11 +15,6 @@ ALitUpLightEmitter::ALitUpLightEmitter()
 	static ConstructorHelpers::FObjectFinder<UStaticMesh>CubeMeshAsset(TEXT("StaticMesh'/Engine/BasicShapes/Cube.Cube'"));
 	Emitter->SetStaticMesh(CubeMeshAsset.Object);
 	SetRootComponent(Emitter);
-
-	LightRay = CreateDefaultSubobject<UChildActorComponent>(TEXT("LightRay"));
-	LightRay->SetChildActorClass(ALitUpLightRay::StaticClass());
-	LightRay->SetupAttachment(Emitter);
-	//Cast<ALitUpLightRay>(LightRay)->maxRays = MaxRays;
 }
 
 // Called when the game starts or when spawned
@@ -27,12 +22,30 @@ void ALitUpLightEmitter::BeginPlay()
 {
 	Super::BeginPlay();
 	Emitter->SetStaticMesh(EmitterMeshAsset);
+	LightRay = nullptr;
 }
 
 // Called every frame
 void ALitUpLightEmitter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	if (!LightRay)
+	{
+		FActorSpawnParameters sp;
+		sp.ObjectFlags = RF_Transient;
+		LightRay = GetWorld()->SpawnActor<ALitUpLightRay>(ALitUpLightRay::StaticClass(), sp);
+		LightRay->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform);
+		LightRay->SetActorRelativeTransform(FTransform(FRotator(0, 0, 0), FVector(0, 0, 0), FVector(1, 1, 1)));
+
+		LightRay->maxRays = MaxRays;
+		LightRay->wavelength = WaveLength;
+	}
+	else
+	{
+		LightRay->maxRays = MaxRays;
+		LightRay->wavelength = WaveLength;
+	}
 }
 
 // This ultimately is what controls whether or not it can even tick at all in the editor view port. 

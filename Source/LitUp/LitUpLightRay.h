@@ -39,17 +39,17 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	float length = 10000.f;
-	int maxRays = 4;
+	int maxRays = 1000;
 	float currentRefractionIndex = 1.f;
-	float wavelength = 600;
+	float wavelength = 780.f;
 
 private:
 	bool next = false;
 	UMaterialInstanceDynamic* dynamicLaserMaterialInstanceDynamic;
 
 	inline void goNext(bool goNext);
-	inline FVector Reflection(const FVector& Direction, const FVector& SurfaceNormal);
-	inline FVector Refraction(const FVector& Direction, const FVector& SurfaceNormal, const float& CurrentRefractionIndex, const float& ObjectRefractionIndex);
+	inline void Reflection(const FVector& Direction, const FVector& SurfaceNormal, const FVector& Location);
+	inline void Refraction(const FVector& Direction, const FVector& SurfaceNormal, const FVector& Location, const float& CurrentRefractionIndex, const float& ObjectRefractionIndex);
 	inline FVector calculateColorFromWaveLength();
 
 };

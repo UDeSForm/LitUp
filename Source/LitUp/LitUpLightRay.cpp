@@ -52,7 +52,12 @@ void ALitUpLightRay::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (nextLightRay) nextLightRay->wavelength = wavelength;
+	if (nextLightRay)
+	{
+		nextLightRay->wavelength = wavelength;
+		nextLightRay->maxRays = maxRays - 1;
+	}
+
 	FVector laserColor = calculateColorFromWaveLength();
 	dynamicLaserMaterialInstanceDynamic->SetVectorParameterValue(FName("LaserColor"), FVector4(laserColor.X, laserColor.Y, laserColor.Z, 1));
 	
@@ -62,7 +67,6 @@ void ALitUpLightRay::Tick(float DeltaTime)
 	FVector End = ((ForwardVector * length) + Start);
 
 	FCollisionQueryParams CollisionParams;
-	CollisionParams.AddIgnoredActor(GetParentActor());
 	CollisionParams.bTraceComplex = true;
 
 	//DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 0.04, 0, 10);
@@ -84,21 +88,13 @@ void ALitUpLightRay::Tick(float DeltaTime)
 		{
 			goNext(true);
 
-			FVector reflection = Reflection(ForwardVector, OutHit.Normal);
-
-			if (nextLightRay) nextLightRay->SetActorTransform(FTransform(reflection.Rotation(), OutHit.Location + (reflection * 0.0001)));
+			if (nextLightRay) Reflection(ForwardVector, OutHit.Normal, OutHit.Location);
 		}
 		else if (OutHit.GetActor()->IsA(ALitUpPrism::StaticClass()))
 		{
 			goNext(true);
 
-			FVector refraction = Refraction(ForwardVector, OutHit.Normal, currentRefractionIndex, Cast<ALitUpPrism>(OutHit.GetActor())->getRefractionIndex());
-
-			if (nextLightRay)
-			{
-				nextLightRay->SetActorTransform(FTransform(refraction.Rotation(), OutHit.Location + (refraction * 0.0001)));
-				nextLightRay->currentRefractionIndex = currentRefractionIndex;
-			}
+			if (nextLightRay) Refraction(ForwardVector, OutHit.Normal, OutHit.Location, currentRefractionIndex, Cast<ALitUpPrism>(OutHit.GetActor())->getRefractionIndex());
 		}
 		else if (OutHit.GetActor()->IsA(ALitUpDiffractor::StaticClass()))
 		{
@@ -117,6 +113,11 @@ void ALitUpLightRay::Tick(float DeltaTime)
 	else
 	{
 		LightRay->SetRelativeTransform(FTransform(FRotator(90, 0, 0), FVector(length / 2.f, 0, 0), FVector(0.05, 0.05, length / 100.f)));
+	}
+
+	if (!maxRays)
+	{
+		goNext(false);
 	}
 }
 
@@ -173,12 +174,14 @@ inline void ALitUpLightRay::goNext(bool goNext)
 	return;
 }
 
-inline FVector ALitUpLightRay::Reflection(const FVector& Direction, const FVector& SurfaceNormal)
+inline void ALitUpLightRay::Reflection(const FVector& Direction, const FVector& SurfaceNormal, const FVector& Location)
 {
-	return FMath::GetReflectionVector(Direction, SurfaceNormal); // À coder
+	FVector reflection = FMath::GetReflectionVector(Direction, SurfaceNormal); // À coder
+
+	nextLightRay->SetActorTransform(FTransform(reflection.Rotation(), Location + (reflection * 0.0001)));
 }
 
-inline FVector ALitUpLightRay::Refraction(const FVector& Direction, const FVector& SurfaceNormal, const float& CurrentRefractionIndex, const float& ObjectRefractionIndex)
+inline void ALitUpLightRay::Refraction(const FVector& Direction, const FVector& SurfaceNormal, const FVector& Location, const float& CurrentRefractionIndex, const float& ObjectRefractionIndex)
 {
 	// TODO Test en 3D a la place de 2D
 
@@ -187,20 +190,37 @@ inline FVector ALitUpLightRay::Refraction(const FVector& Direction, const FVecto
 	GEngine->AddOnScreenDebugMessage(-12, 1.f, FColor::Yellow, FString::Printf(TEXT("[Refraction_SurfaceNormal_Param] X: %f, Y: %f, Z: %f"), SurfaceNormal.X, SurfaceNormal.Y, SurfaceNormal.Z));
 	GEngine->AddOnScreenDebugMessage(-13, 1.f, FColor::Yellow, FString::Printf(TEXT("Angle impact = %f deg"), FMath::RadiansToDegrees(FMath::Acos(FVector::DotProduct(SurfaceNormal, -Direction))))); // Bon angle par rapport à la normale
 	
-	double n = CurrentRefractionIndex / ObjectRefractionIndex;
+	double n1;
+	double n2;
+
+	if (CurrentRefractionIndex < ObjectRefractionIndex)
+	{
+		n1 = CurrentRefractionIndex;
+		n2 = ObjectRefractionIndex;
+	}
+	else
+	{
+		n1 = ObjectRefractionIndex;
+		n2 = 1;
+	}
+
+	double n = n1 / n2;
 	double cosIncident = FVector::DotProduct(SurfaceNormal, -Direction);
 	double sinRefractedSquared = n * n * (1.0 - (cosIncident * cosIncident));
 	if (sinRefractedSquared > 1.0)
 	{
 		// RTI applicable ici
 		GEngine->AddOnScreenDebugMessage(-14, 1.f, FColor::Yellow, FString::Printf(TEXT("RTI")));
-		return Reflection(Direction, SurfaceNormal);
+		Reflection(Direction, SurfaceNormal, Location);
 	}
 	else
 	{
 		double cosRefracted = FMath::Sqrt(1.0 - sinRefractedSquared);
 		GEngine->AddOnScreenDebugMessage(-14, 1.f, FColor::Yellow, FString::Printf(TEXT("Angle refracte = %f deg"), FMath::RadiansToDegrees(FMath::Acos(cosRefracted)))); // Bon angle
-		return n * Direction + (n * cosIncident - cosRefracted) * SurfaceNormal;
+		FVector refraction = n * Direction + (n * cosIncident - cosRefracted) * SurfaceNormal;
+
+		nextLightRay->SetActorTransform(FTransform(refraction.Rotation(), Location + (refraction * 0.0001)));
+		nextLightRay->currentRefractionIndex = n2;
 	}
 }
 
@@ -262,7 +282,7 @@ inline FVector ALitUpLightRay::calculateColorFromWaveLength()
 	FVector result;
 
 	const double gamma = 0.8;
-	const double intensity_max = 255.0;
+	const double intensity_max = 100.0;
 
 #define round(d) std::floor(d + 0.5)
 
