@@ -9,36 +9,6 @@ ALitUpPrism::ALitUpPrism()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	static ConstructorHelpers::FObjectFinder<UStaticMesh>PlaneMeshAsset(TEXT("StaticMesh'/Engine/BasicShapes/Plane.Plane'"));
-
-	PrismFaceTop = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("FaceTop"));
-	PrismFaceFront = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("FaceFront"));
-	PrismFaceBack = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("FaceBack"));
-	PrismFaceLeft = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("FaceLeft"));
-	PrismFaceRight = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("FaceRight"));
-	PrismFaceBottom = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("FaceBottom"));
-
-	PrismFaceTop->SetupAttachment(this->RootComponent);
-	PrismFaceFront->SetupAttachment(PrismFaceTop);
-	PrismFaceBack->SetupAttachment(PrismFaceFront);
-	PrismFaceLeft->SetupAttachment(PrismFaceBack);
-	PrismFaceRight->SetupAttachment(PrismFaceLeft);
-	PrismFaceBottom->SetupAttachment(PrismFaceRight);
-
-	PrismFaceTop->SetStaticMesh(PlaneMeshAsset.Object);
-	PrismFaceFront->SetStaticMesh(PlaneMeshAsset.Object);
-	PrismFaceBack->SetStaticMesh(PlaneMeshAsset.Object);
-	PrismFaceLeft->SetStaticMesh(PlaneMeshAsset.Object);
-	PrismFaceRight->SetStaticMesh(PlaneMeshAsset.Object);
-	PrismFaceBottom->SetStaticMesh(PlaneMeshAsset.Object);
-
-	PrismFaceTop->SetRelativeTransform(FTransform(FRotator(0, 0, 0), FVector(0, 0, 50), FVector(1, 1, 1)));
-	PrismFaceFront->SetRelativeTransform(FTransform(FRotator(0, 90, 0), FVector(-50, 0, -50), FVector(1, 1, 1)));
-	PrismFaceBack->SetRelativeTransform(FTransform(FRotator(0, 0, 0), FVector(0, 0, -100), FVector(1, 1, 1)));
-	PrismFaceLeft->SetRelativeTransform(FTransform(FRotator(90, 90, 180), FVector(0, 50, 50), FVector(1, 1, 1)));
-	PrismFaceRight->SetRelativeTransform(FTransform(FRotator(0, 0, 0), FVector(0, 0, 100), FVector(1, 1, 1)));
-	PrismFaceBottom->SetRelativeTransform(FTransform(FRotator(-90, 0, 0), FVector(0, 50, -50), FVector(1, 1, 1)));
-
 	//static ConstructorHelpers::FObjectFinder<UMaterial>prismMaterial(TEXT("/Script/Engine.Material'/Game/CustomActors/Materials/RefractionLayerMaterial.RefractionLayerMaterial'"));
 	//dynamicPrismMaterialInstanceDynamic = UMaterialInstanceDynamic::Create(prismMaterial.Object, PrismFaceTop);
 

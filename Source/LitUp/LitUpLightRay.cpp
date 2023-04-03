@@ -90,7 +90,7 @@ void ALitUpLightRay::Tick(float DeltaTime)
 
 			if (nextLightRay) Reflection(ForwardVector, OutHit.Normal, OutHit.Location);
 		}
-		else if (OutHit.GetActor()->IsA(ALitUpPrism::StaticClass()))
+		else if (OutHit.GetActor()->IsA(ALitUpPrism::StaticClass())) // REFRACTION
 		{
 			goNext(true);
 
