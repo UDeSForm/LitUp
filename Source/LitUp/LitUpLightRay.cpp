@@ -52,15 +52,6 @@ void ALitUpLightRay::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (nextLightRay)
-	{
-		nextLightRay->wavelength = wavelength;
-		nextLightRay->maxRays = maxRays - 1;
-	}
-
-	FVector laserColor = calculateColorFromWaveLength();
-	dynamicLaserMaterialInstanceDynamic->SetVectorParameterValue(FName("LaserColor"), FVector4(laserColor.X, laserColor.Y, laserColor.Z, 1));
-	
 	FVector Start = Origin->GetComponentLocation();
 	FVector ForwardVector = Origin->GetForwardVector();
 	FHitResult OutHit;
@@ -119,6 +110,15 @@ void ALitUpLightRay::Tick(float DeltaTime)
 	{
 		goNext(false);
 	}
+
+	if (nextLightRay)
+	{
+		nextLightRay->wavelength = wavelength;
+		nextLightRay->maxRays = maxRays - 1;
+	}
+
+	FVector laserColor = calculateColorFromWaveLength();
+	dynamicLaserMaterialInstanceDynamic->SetVectorParameterValue(FName("LaserColor"), FVector4(laserColor.X, laserColor.Y, laserColor.Z, 1));
 }
 
 // This ultimately is what controls whether or not it can even tick at all in the editor view port. 
@@ -186,9 +186,9 @@ inline void ALitUpLightRay::Refraction(const FVector& Direction, const FVector& 
 	// TODO Test en 3D a la place de 2D
 
 	// Retourne le vecteur du rayon réfracté
-	GEngine->AddOnScreenDebugMessage(-11, 1.f, FColor::Yellow, FString::Printf(TEXT("[Refraction_Direction_Param] X: %f, Y: %f, Z: %f"), Direction.X, Direction.Y, Direction.Z));
-	GEngine->AddOnScreenDebugMessage(-12, 1.f, FColor::Yellow, FString::Printf(TEXT("[Refraction_SurfaceNormal_Param] X: %f, Y: %f, Z: %f"), SurfaceNormal.X, SurfaceNormal.Y, SurfaceNormal.Z));
-	GEngine->AddOnScreenDebugMessage(-13, 1.f, FColor::Yellow, FString::Printf(TEXT("Angle impact = %f deg"), FMath::RadiansToDegrees(FMath::Acos(FVector::DotProduct(SurfaceNormal, -Direction))))); // Bon angle par rapport à la normale
+	//GEngine->AddOnScreenDebugMessage(-11, 1.f, FColor::Yellow, FString::Printf(TEXT("[Refraction_Direction_Param] X: %f, Y: %f, Z: %f"), Direction.X, Direction.Y, Direction.Z));
+	//GEngine->AddOnScreenDebugMessage(-12, 1.f, FColor::Yellow, FString::Printf(TEXT("[Refraction_SurfaceNormal_Param] X: %f, Y: %f, Z: %f"), SurfaceNormal.X, SurfaceNormal.Y, SurfaceNormal.Z));
+	//GEngine->AddOnScreenDebugMessage(-13, 1.f, FColor::Yellow, FString::Printf(TEXT("Angle impact = %f deg"), FMath::RadiansToDegrees(FMath::Acos(FVector::DotProduct(SurfaceNormal, -Direction))))); // Bon angle par rapport à la normale
 	
 	double n1;
 	double n2;
@@ -210,13 +210,13 @@ inline void ALitUpLightRay::Refraction(const FVector& Direction, const FVector& 
 	if (sinRefractedSquared > 1.0)
 	{
 		// RTI applicable ici
-		GEngine->AddOnScreenDebugMessage(-14, 1.f, FColor::Yellow, FString::Printf(TEXT("RTI")));
+		//GEngine->AddOnScreenDebugMessage(-14, 1.f, FColor::Yellow, FString::Printf(TEXT("RTI")));
 		Reflection(Direction, SurfaceNormal, Location);
 	}
 	else
 	{
 		double cosRefracted = FMath::Sqrt(1.0 - sinRefractedSquared);
-		GEngine->AddOnScreenDebugMessage(-14, 1.f, FColor::Yellow, FString::Printf(TEXT("Angle refracte = %f deg"), FMath::RadiansToDegrees(FMath::Acos(cosRefracted)))); // Bon angle
+		//GEngine->AddOnScreenDebugMessage(-14, 1.f, FColor::Yellow, FString::Printf(TEXT("Angle refracte = %f deg"), FMath::RadiansToDegrees(FMath::Acos(cosRefracted)))); // Bon angle
 		FVector refraction = n * Direction + (n * cosIncident - cosRefracted) * SurfaceNormal;
 
 		nextLightRay->SetActorTransform(FTransform(refraction.Rotation(), Location + (refraction * 0.0001)));

@@ -12,9 +12,6 @@ class LITUP_API ALitUpPrism : public AActor
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere)
-		UStaticMesh* PrismMeshAsset;
-
-	UPROPERTY(EditAnywhere)
 		float RefractionIndex = 1.5f;
 
 	/** Allows Tick To happen in the editor viewport*/
@@ -32,7 +29,4 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	float getRefractionIndex();
-
-//private:
-//	UMaterialInstanceDynamic* dynamicPrismMaterialInstanceDynamic;
 };
