@@ -79,12 +79,7 @@ void ALitUpLightRay::Tick(float DeltaTime)
 		{
 			goNext(true);
 
-			FVector reflection = Reflection(ForwardVector, OutHit.Normal);
-
-			if (nextLightRay) nextLightRay->SetActorTransform(FTransform(reflection.Rotation(), OutHit.Location + (reflection * 0.0001)));
-			
-			//if (nextLightRay) Reflection(ForwardVector, OutHit.Normal, OutHit.Location);
-			
+			if (nextLightRay) Reflection(ForwardVector, OutHit.Normal, OutHit.Location);
 		}
 		else if (OutHit.GetActor()->IsA(ALitUpPrism::StaticClass())) // REFRACTION
 		{
@@ -179,33 +174,26 @@ inline void ALitUpLightRay::goNext(bool goNext)
 	return;
 }
 
-inline void ALitUpLightRay::Reflection(const FVector& Direction, const FVector& SurfaceNormal /*, const FVector& Location*/)
+inline void ALitUpLightRay::Reflection(const FVector& Direction, const FVector& SurfaceNormal, const FVector& Location)
 {
-	//=== remplacer par Start = Location         
-	FVector Start = Origin->GetComponentLocation();
-	//======
-	
-	FVector ForwardVector = Origin->GetForwardVector();
-	FHitResult OutHit;
-	FVector End = ((ForwardVector * length) + Start);
-	
-	
-	// nouveau rayon =====================================================================
-	FHitResult NewHitResult;
-	Start = OutHit.Location;
-	End = (4000.f * FMath::GetReflectionVector(Direction, SurfaceNormal)) + Start;
+	float tolerance = 0.01f;
 
-	FCollisionQueryParams NewCollisionParams;
-	NewCollisionParams.AddIgnoredActor(OutHit.GetActor());
-	NewCollisionParams.AddIgnoredComponent(LightRay); 
-	NewCollisionParams.AddIgnoredActor(this); 
-	//============================================================================================
-	return FMath::GetReflectionVector(Direction, SurfaceNormal);
-	/*
-	FVector reflection = FMath::GetReflectionVector(Direction, SurfaceNormal); // À coder
+	float SquareSum = SurfaceNormal.X * SurfaceNormal.X + SurfaceNormal.Y * SurfaceNormal.Y + SurfaceNormal.Z * SurfaceNormal.Z;
+
+	FVector NormalizedNormal;
+
+	if (SquareSum > 1.f + tolerance || SquareSum < 1.f - tolerance)
+	{
+		NormalizedNormal = SurfaceNormal * FMath::InvSqrt(SquareSum);
+	}
+	else
+	{
+		NormalizedNormal = SurfaceNormal;
+	}
+
+	FVector reflection = Direction - 2 * (Direction | NormalizedNormal) * NormalizedNormal;
 
 	nextLightRay->SetActorTransform(FTransform(reflection.Rotation(), Location + (reflection * 0.0001)));
-	*/
 }
 
 inline void ALitUpLightRay::Refraction(const FVector& Direction, const FVector& SurfaceNormal, const FVector& Location, const float& CurrentRefractionIndex, const float& ObjectRefractionIndex)
