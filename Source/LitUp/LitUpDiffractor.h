@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Engine/TextureRenderTarget2D.h"
+#include "Engine/Texture2D.h"
 #include "LitUpDiffractor.generated.h"
 
 UCLASS()
@@ -16,6 +18,9 @@ class LITUP_API ALitUpDiffractor : public AActor
 
 	UPROPERTY(EditAnywhere)
 		UStaticMesh* DiffractorMeshAsset;
+	UPROPERTY(EditAnywhere)
+		UTexture2D* Fente;
+
 
 	/** Allows Tick To happen in the editor viewport*/
 	virtual bool ShouldTickIfViewportsOnly() const override;
@@ -30,6 +35,8 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-
+	void CalculerPatronDiffraction();
 	void exec();
+private:
+	UTextureRenderTarget2D patronDiffraction;
 };
