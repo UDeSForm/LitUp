@@ -77,6 +77,18 @@ public:
 	UFUNCTION(BlueprintCallable, Category = ObjectControl)
 		bool GetIsInObject();
 
+	/** Is character currently moving an object? */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = ObjectControl)
+		bool bIsMovingObject;
+
+	/** Setter to set the bool */
+	UFUNCTION(BlueprintCallable, Category = ObjectControl)
+		void SetIsMovingObject(bool bNewIsMovingObject);
+
+	/** Getter for the bool */
+	UFUNCTION(BlueprintCallable, Category = ObjectControl)
+		bool GetIsMovingObject();
+
 
 protected:
 	/** Called for movement input */

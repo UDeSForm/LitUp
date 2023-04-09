@@ -128,3 +128,13 @@ bool ALitUpCharacter::GetIsInObject()
 {
 	return bIsInObject;
 }
+
+void ALitUpCharacter::SetIsMovingObject(bool bNewIsMovingObject)
+{
+	bIsMovingObject = bNewIsMovingObject;
+}
+
+bool ALitUpCharacter::GetIsMovingObject()
+{
+	return bIsMovingObject;
+}
