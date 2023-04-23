@@ -12,19 +12,19 @@ UCLASS()
 class LITUP_API ALitUpDiffractor : public AActor
 {
 	GENERATED_BODY()
-	
-	UPROPERTY(VisibleDefaultsOnly)
+
+		UPROPERTY(VisibleDefaultsOnly)
 		UStaticMeshComponent* Diffractor;
 
 	UPROPERTY(EditAnywhere)
 		UStaticMesh* DiffractorMeshAsset;
 
-	//UPROPERTY(EditAnywhere)
-	//	UTexture2D* Fente;
+	UPROPERTY(EditAnywhere)
+		UTexture2D* Fente;
 
 	/** Allows Tick To happen in the editor viewport*/
 	virtual bool ShouldTickIfViewportsOnly() const override;
-public:	
+public:
 	// Sets default values for this actor's properties
 	ALitUpDiffractor();
 
@@ -32,11 +32,12 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:	
+public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-	//void CalculerPatronDiffraction();
+	void CalculerPatronDiffraction();
 	void exec();
 private:
+	int pixels[64][64];
 	//UTextureRenderTarget2D patronDiffraction;
 };

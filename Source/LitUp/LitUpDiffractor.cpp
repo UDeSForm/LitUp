@@ -20,7 +20,7 @@ void ALitUpDiffractor::BeginPlay()
 {
 	Super::BeginPlay();
 	Diffractor->SetStaticMesh(DiffractorMeshAsset);
-	//CalculerPatronDiffraction();
+	CalculerPatronDiffraction();
 }
 
 // Called every frame
@@ -44,46 +44,31 @@ bool ALitUpDiffractor::ShouldTickIfViewportsOnly() const
 	}
 }
 
-//inline void ALitUpDiffractor::CalculerPatronDiffraction()
-//{
-//	//https://isaratech.com/ue4-reading-the-pixels-from-a-utexture2d/
-//	TextureCompressionSettings OldCompressionSettings = Fente->CompressionSettings; TextureMipGenSettings OldMipGenSettings = Fente->MipGenSettings; bool OldSRGB = Fente->SRGB;
-//
-//	Fente->CompressionSettings = TextureCompressionSettings::TC_VectorDisplacementmap;
-//	Fente->MipGenSettings = TextureMipGenSettings::TMGS_NoMipmaps;
-//	Fente->SRGB = false;
-//	Fente->UpdateResource();
-//
-//	const FColor* FormatedImageData = static_cast<const FColor*>(Fente->PlatformData->Mips[0].BulkData.LockReadOnly());
-//	int sizeX = Fente->GetSizeX();
-//	int sizeY = Fente->GetSizeY();
-//
-//	for (int32 X = 0; X < sizeX; X++)
-//	{
-//		for (int32 Y = 0; Y < sizeY; Y++)
-//		{
-//			FColor PixelColor = FormatedImageData[Y * sizeX + X];
-//			if (PixelColor.R > 128)
-//			{
-//				//Calculer 2d array de valeurs d'intensité pour ce pixel de la fente
-//				//et accumuler les valeurs d'intensité des 2d arrays
-//				//décimale intensité: intensité - floor(intensité)
-//				//scale intensité pour minimum et maximum intensité: 2|intensité - 0,5|
-//			}
-//		}
-//	}
-//
-//
-//
-//	Fente->PlatformData->Mips[0].BulkData.Unlock();
-//
-//	Fente->CompressionSettings = OldCompressionSettings;
-//	Fente->MipGenSettings = OldMipGenSettings;
-//	Fente->SRGB = OldSRGB;
-//	Fente->UpdateResource();
-//}
+inline void ALitUpDiffractor::CalculerPatronDiffraction()
+{
+	int sizeX = Fente->GetSizeX();
+	int sizeY = Fente->GetSizeY();
+
+	FTexture2DMipMap MyMipMap = Fente->GetPlatformData()->Mips[0];
+	FByteBulkData RawImageData = MyMipMap.BulkData;
+	FColor* FormatedImageData = static_cast<FColor*>(RawImageData.Lock(LOCK_READ_ONLY));
+
+	for (int i = 0; i < sizeX; i++)
+	{
+		for (int j = 0; j < sizeY; j++)
+		{
+
+			FColor PixelColor = FormatedImageData[j * sizeX + i];
+			pixels[i][j] = PixelColor.R;
+			FString message = FString::FromInt(pixels[i][j]);
+			if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, message);
+		}
+	}
+	RawImageData.Unlock();
+}
 
 void ALitUpDiffractor::exec()
 {
+	int sizeX = Fente->GetSizeX();
 	
 }
