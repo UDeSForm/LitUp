@@ -89,6 +89,17 @@ public:
 	UFUNCTION(BlueprintCallable, Category = ObjectControl)
 		bool GetIsMovingObject();
 
+	/** Is character currently editing an index value? */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = ObjectControl)
+		bool bIsEditingIndex;
+
+	/** Setter to set the bool */
+	UFUNCTION(BlueprintCallable, Category = ObjectControl)
+		void SetIsEditingIndex(bool bNewIsEditingIndex);
+
+	/** Getter for the bool */
+	UFUNCTION(BlueprintCallable, Category = ObjectControl)
+		bool GetIsEditingIndex();
 
 protected:
 	/** Called for movement input */
