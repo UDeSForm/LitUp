@@ -11,6 +11,9 @@ ALitUpMirror::ALitUpMirror()
 
 	Mirror = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mirror"));
 	static ConstructorHelpers::FObjectFinder<UStaticMesh>CubeMeshAsset(TEXT("StaticMesh'/Engine/BasicShapes/Cube.Cube'"));
+	static ConstructorHelpers::FObjectFinder<UMaterial>mirrorMaterial(TEXT("Material '/Game/CustomActors/Materials/M_Mirror'"));
+	
+	Mirror->SetMaterial(0, mirrorMaterial.Object);
 	Mirror->SetStaticMesh(CubeMeshAsset.Object);
 	SetRootComponent(Mirror);
 }
