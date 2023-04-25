@@ -198,12 +198,6 @@ inline void ALitUpLightRay::Reflection(const FVector& Direction, const FVector& 
 
 inline void ALitUpLightRay::Refraction(const FVector& Direction, const FVector& SurfaceNormal, const FVector& Location, const float& CurrentRefractionIndex, const float& ObjectRefractionIndex)
 {
-	// TODO Test en 3D a la place de 2D
-
-	// Retourne le vecteur du rayon réfracté
-	//GEngine->AddOnScreenDebugMessage(-11, 1.f, FColor::Yellow, FString::Printf(TEXT("[Refraction_Direction_Param] X: %f, Y: %f, Z: %f"), Direction.X, Direction.Y, Direction.Z));
-	//GEngine->AddOnScreenDebugMessage(-12, 1.f, FColor::Yellow, FString::Printf(TEXT("[Refraction_SurfaceNormal_Param] X: %f, Y: %f, Z: %f"), SurfaceNormal.X, SurfaceNormal.Y, SurfaceNormal.Z));
-	//GEngine->AddOnScreenDebugMessage(-13, 1.f, FColor::Yellow, FString::Printf(TEXT("Angle impact = %f deg"), FMath::RadiansToDegrees(FMath::Acos(FVector::DotProduct(SurfaceNormal, -Direction))))); // Bon angle par rapport à la normale
 	
 	double n1;
 	double n2;

@@ -33,4 +33,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	void exec();
+
+	UPROPERTY(EditAnywhere, Category = "BlueprintClass")
+		AActor* bpActor;
 };

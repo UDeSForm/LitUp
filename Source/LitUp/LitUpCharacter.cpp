@@ -138,3 +138,13 @@ bool ALitUpCharacter::GetIsMovingObject()
 {
 	return bIsMovingObject;
 }
+
+void ALitUpCharacter::SetIsEditingIndex(bool bNewIsEditingIndex)
+{
+	bIsEditingIndex = bNewIsEditingIndex;
+}
+
+bool ALitUpCharacter::GetIsEditingIndex()
+{
+	return bIsEditingIndex;
+}

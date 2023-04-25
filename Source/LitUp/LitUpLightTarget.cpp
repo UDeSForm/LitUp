@@ -2,6 +2,7 @@
 
 
 #include "LitUpLightTarget.h"
+#include <Misc/OutputDeviceNull.h>
 
 // Sets default values
 ALitUpLightTarget::ALitUpLightTarget()
@@ -45,4 +46,9 @@ bool ALitUpLightTarget::ShouldTickIfViewportsOnly() const
 void ALitUpLightTarget::exec()
 {
 	if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, TEXT("Hit!"));
+
+	FOutputDeviceNull outputNull;
+	const FString RotateObjectCommand = FString::Printf(TEXT("GoToNextLevel"));
+	this->CallFunctionByNameWithArguments(*RotateObjectCommand, outputNull, NULL, true);
+	return;
 }
