@@ -60,11 +60,11 @@ inline void ALitUpDiffractor::CalculerPatronDiffraction()
 
 			FColor PixelColor = FormatedImageData[j * sizeX + i];
 			pixels[i][j] = PixelColor.R;
-			FString message = FString::FromInt(pixels[i][j]);
-			if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, message);
+			
 		}
 	}
 	RawImageData.Unlock();
+	
 }
 
 void ALitUpDiffractor::exec()

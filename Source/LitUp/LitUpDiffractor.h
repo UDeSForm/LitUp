@@ -38,6 +38,6 @@ public:
 	void CalculerPatronDiffraction();
 	void exec();
 private:
-	int pixels[64][64];
+	int pixels[16][16];
 	//UTextureRenderTarget2D patronDiffraction;
 };
