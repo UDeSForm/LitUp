@@ -16,6 +16,7 @@ class LITUP_API ALitUpMirror : public AActor
 
 	UPROPERTY(EditAnywhere)
 		UStaticMesh* MirrorMeshAsset;
+		
 
 	/** Allows Tick To happen in the editor viewport*/
 	virtual bool ShouldTickIfViewportsOnly() const override;
