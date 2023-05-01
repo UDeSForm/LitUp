@@ -73,7 +73,7 @@ void ALitUpLightRay::Tick(float DeltaTime)
 
 			goNext(false);
 
-			Cast<ALitUpLightTarget>(OutHit.GetActor())->exec();
+			Cast<ALitUpLightTarget>(OutHit.GetActor())->exec(wavelength);
 		}
 		else if (OutHit.GetActor()->IsA(ALitUpMirror::StaticClass()))
 		{
@@ -117,8 +117,7 @@ void ALitUpLightRay::Tick(float DeltaTime)
 		nextLightRay->maxRays = maxRays - 1;
 	}
 
-	FVector laserColor = calculateColorFromWaveLength();
-	dynamicLaserMaterialInstanceDynamic->SetVectorParameterValue(FName("LaserColor"), FVector4(laserColor.X, laserColor.Y, laserColor.Z, 1));
+	dynamicLaserMaterialInstanceDynamic->SetVectorParameterValue(FName("LaserColor"), calculateColorFromWaveLength());
 }
 
 // This ultimately is what controls whether or not it can even tick at all in the editor view port. 
@@ -288,18 +287,10 @@ inline FVector ALitUpLightRay::calculateColorFromWaveLength()
 	else
 		factor = 0.0;
 
-	FVector result;
-
 	const double gamma = 0.8;
 	const double intensity_max = 100.0;
 
-#define round(d) std::floor(d + 0.5)
-
-	result.X = static_cast<unsigned char>((red == 0.0) ? red : round(intensity_max * std::pow(red * factor, gamma)));
-	result.Y = static_cast<unsigned char>((green == 0.0) ? green : round(intensity_max * std::pow(green * factor, gamma)));
-	result.Z = static_cast<unsigned char>((blue == 0.0) ? blue : round(intensity_max * std::pow(blue * factor, gamma)));
-
-#undef round
+	FVector result = { intensity_max * pow(red * factor, gamma), intensity_max * pow(green * factor, gamma), intensity_max * pow(blue * factor, gamma) };
 
 	return result;
 }

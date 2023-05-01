@@ -18,9 +18,6 @@ class LITUP_API ALitUpLightRay : public AActor
 		UStaticMeshComponent* LightRay;
 
 	UPROPERTY(VisibleDefaultsOnly)
-		UMaterial* LaserMaterial;
-
-	UPROPERTY(VisibleDefaultsOnly)
 		ALitUpLightRay* nextLightRay = nullptr;
 
 	/** Allows Tick To happen in the editor viewport*/
