@@ -24,6 +24,9 @@ class LITUP_API ALitUpDiffractor : public AActor
 	UPROPERTY(EditAnywhere)
 		UTexture2D* Fente;
 
+	UPROPERTY(EditAnywhere)
+		float WaveLength = 780.f;
+
 	/** Allows Tick To happen in the editor viewport*/
 	virtual bool ShouldTickIfViewportsOnly() const override;
 public:
@@ -40,7 +43,7 @@ public:
 	void CalculerPatronDiffraction();
 	void exec();
 private:
-	int pixels[1024][1024];
+	float pixels[1024][1024] = {0};
 	float pixelFente = 1000.f;
 	//UTextureRenderTarget2D patronDiffraction;
 };
