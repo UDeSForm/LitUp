@@ -48,52 +48,27 @@ inline void ALitUpDiffractor::CalculerPatronDiffraction()
 {
 	int sizeX = Fente->GetSizeX();
 	int sizeY = Fente->GetSizeY();
-	float distanceMur;
 
-	FVector Start = Origin->GetComponentLocation();
-	FVector ForwardVector = Origin->GetForwardVector();
-	FHitResult OutHit;
-	FVector End = ((ForwardVector * 10000.0f) + Start);
+	FTexture2DMipMap MyMipMap = Fente->GetPlatformData()->Mips[0];
+	FByteBulkData RawImageData = MyMipMap.BulkData;
+	FColor* FormatedImageData = static_cast<FColor*>(RawImageData.Lock(LOCK_READ_ONLY));
 
-	FCollisionQueryParams CollisionParams;
-	CollisionParams.bTraceComplex = true;
-
-
-	if (GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_WorldStatic, CollisionParams))
+	for (int i = 0; i < sizeX; i++)
 	{
-		distanceMur = OutHit.Distance;
-		float taillePixel = distanceMur / 1024.f;
-
-		FTexture2DMipMap MyMipMap = Fente->GetPlatformData()->Mips[0];
-		FByteBulkData RawImageData = MyMipMap.BulkData;
-		FColor* FormatedImageData = static_cast<FColor*>(RawImageData.Lock(LOCK_READ_ONLY));
-
-		for (int i = 0; i < sizeX; i++)
+		for (int j = 0; j < sizeY; j++)
 		{
-			for (int j = 0; j < sizeY; j++)
-			{
 
-				FColor PixelColor = FormatedImageData[j * sizeX + i];
-				if (PixelColor.R > 0)
-				{
-					for (int x = 0; x < 1024; x++)
-					{
-						for (int y = 0; y < 1024; y++)
-						{
-						}
-					}
-				}
-
-			}
+			FColor PixelColor = FormatedImageData[j * sizeX + i];
+			pixels[i][j] = PixelColor.R;
+			
 		}
-		RawImageData.Unlock();
 	}
-
-	
+	RawImageData.Unlock();
 	
 }
 
 void ALitUpDiffractor::exec()
 {
+	int sizeX = Fente->GetSizeX();
 	
 }
