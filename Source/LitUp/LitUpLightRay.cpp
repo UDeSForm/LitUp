@@ -39,6 +39,7 @@ ALitUpLightRay::ALitUpLightRay()
 	LightRay->SetRelativeTransform(FTransform(FRotator(90, 0, 0), FVector(length / 2.f, 0, 0), FVector(0.05, 0.05, length / 100.f)));
 	LightRay->CastShadow = false;
 	LightRay->bEmissiveLightSource = true;
+
 }
 
 // Called when the game starts or when spawned

@@ -56,8 +56,8 @@ void ALitUpLightTarget::exec(float &waveLength)
 		if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, TEXT("Hit!"));
 
 		FOutputDeviceNull outputNull;
-		const FString RotateObjectCommand = FString::Printf(TEXT("Go To Next Level"));
-		this->CallFunctionByNameWithArguments(*RotateObjectCommand, outputNull, NULL, true);
+		const FString GoToNextLevelCommand = FString::Printf(TEXT("GoToNextLevel"));
+		this->CallFunctionByNameWithArguments(*GoToNextLevelCommand, outputNull, NULL, true);
 	}
 
 	return;
