@@ -13,9 +13,11 @@ ALitUpDiffractor::ALitUpDiffractor()
 	SetRootComponent(Origin);
 
 	Diffractor = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Diffractor"));
+	Diffractor->SetupAttachment(Origin);
+
 	static ConstructorHelpers::FObjectFinder<UStaticMesh>CubeMeshAsset(TEXT("StaticMesh'/Engine/BasicShapes/Cube.Cube'"));
 	Diffractor->SetStaticMesh(CubeMeshAsset.Object);
-	SetRootComponent(Diffractor);
+	
 }
 
 // Called when the game starts or when spawned
@@ -57,12 +59,13 @@ inline void ALitUpDiffractor::CalculerPatronDiffraction()
 	FCollisionQueryParams CollisionParams;
 	CollisionParams.bTraceComplex = true;
 
-	//DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 0.04, 0, 10);
 
 	if (GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_WorldStatic, CollisionParams))
 	{
-		float distanceMur = OutHit.Distance;
-		float taillePixelNM = (distanceMur * 10000000) / 1024.f;
+		float distanceMurNM = OutHit.Distance;
+		GEngine->AddOnScreenDebugMessage(-14, 1.f, FColor::Yellow, FString::Printf(TEXT("%f"), distanceMurNM));
+		float taillePixelNM = (distanceMurNM) / 1024.f;
+		GEngine->AddOnScreenDebugMessage(-15, 1.f, FColor::Yellow, FString::Printf(TEXT("%f"), taillePixelNM));
 		int sizeX = Fente->GetSizeX();
 		int sizeY = Fente->GetSizeY();
 
@@ -78,11 +81,17 @@ inline void ALitUpDiffractor::CalculerPatronDiffraction()
 				FColor PixelColor = FormatedImageData[j * sizeX + i];
 				if (PixelColor.R > 0)
 				{
+					int coorX = (i * 64) + 32;
+					int coorY = (j * 64) + 32;
 					for (int x = 0; x < 1024; x++)
 					{
 						for (int y = 0; y < 1024; y++)
 						{
-							
+							float dPointPatron = sqrt((x - coorX) * taillePixelNM * (x - coorX) * taillePixelNM + (y - coorY) * taillePixelNM * (y - coorY) * taillePixelNM);
+							float distance = sqrt((distanceMurNM * distanceMurNM) + dPointPatron * dPointPatron);
+
+
+							pixels[x][y] += (distance / WaveLength);
 						}
 					}
 				}
