@@ -43,6 +43,7 @@ public:
 	UPROPERTY(EditAnywhere, Category = "BlueprintClass")
 		AActor* bpActor;
 
+
 private:
 	UMaterialInstanceDynamic* dynamicTargetMaterialInstanceDynamic;
 
