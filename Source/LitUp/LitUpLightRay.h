@@ -23,6 +23,9 @@ class LITUP_API ALitUpLightRay : public AActor
 	/** Allows Tick To happen in the editor viewport*/
 	virtual bool ShouldTickIfViewportsOnly() const override;
 
+	UPROPERTY(EditDefaultsOnly)
+		TSubclassOf<AActor>LitUpTargetBPClass;
+
 public:
 	// Sets default values for this actor's properties
 	ALitUpLightRay();

@@ -39,6 +39,7 @@ ALitUpLightRay::ALitUpLightRay()
 	LightRay->SetRelativeTransform(FTransform(FRotator(90, 0, 0), FVector(length / 2.f, 0, 0), FVector(0.05, 0.05, length / 100.f)));
 	LightRay->CastShadow = false;
 	LightRay->bEmissiveLightSource = true;
+
 }
 
 // Called when the game starts or when spawned
@@ -197,7 +198,6 @@ inline void ALitUpLightRay::Reflection(const FVector& Direction, const FVector& 
 
 inline void ALitUpLightRay::Refraction(const FVector& Direction, const FVector& SurfaceNormal, const FVector& Location, const float& CurrentRefractionIndex, const float& ObjectRefractionIndex)
 {
-	
 	double n1;
 	double n2;
 
