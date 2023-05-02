@@ -44,7 +44,7 @@ public:
 		AActor* bpActor;
 
 private:
-	UMaterialInstanceDynamic* dynamicLaserMaterialInstanceDynamic;
+	UMaterialInstanceDynamic* dynamicTargetMaterialInstanceDynamic;
 
 	inline FVector calculateColorFromWaveLength();
 };

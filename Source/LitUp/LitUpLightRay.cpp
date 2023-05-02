@@ -198,7 +198,6 @@ inline void ALitUpLightRay::Reflection(const FVector& Direction, const FVector& 
 
 inline void ALitUpLightRay::Refraction(const FVector& Direction, const FVector& SurfaceNormal, const FVector& Location, const float& CurrentRefractionIndex, const float& ObjectRefractionIndex)
 {
-	
 	double n1;
 	double n2;
 

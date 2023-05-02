@@ -11,13 +11,13 @@ ALitUpLightTarget::ALitUpLightTarget()
 	PrimaryActorTick.bCanEverTick = true;
 
 	Target = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("LightTarget"));
-	static ConstructorHelpers::FObjectFinder<UStaticMesh>CubeMeshAsset(TEXT("StaticMesh'/Engine/BasicShapes/Cube.Cube'"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh>CubeMeshAsset(TEXT("StaticMesh'/Game/CustomActors/Intermediates/Target_Mesh.Target_Mesh'"));
 	Target->SetStaticMesh(CubeMeshAsset.Object);
 	SetRootComponent(Target);
 
-	static ConstructorHelpers::FObjectFinder<UMaterial>laserMaterial(TEXT("Material'/Game/CustomActors/Materials/M_TargetColor.M_TargetColor'"));
-	dynamicLaserMaterialInstanceDynamic = UMaterialInstanceDynamic::Create(laserMaterial.Object, Target);
-	Target->SetMaterial(1, dynamicLaserMaterialInstanceDynamic);
+	static ConstructorHelpers::FObjectFinder<UMaterial>targetMaterial(TEXT("Material'/Game/CustomActors/Materials/M_TargetColor.M_TargetColor'"));
+	dynamicTargetMaterialInstanceDynamic = UMaterialInstanceDynamic::Create(targetMaterial.Object, Target);
+	Target->SetMaterial(1, dynamicTargetMaterialInstanceDynamic);
 }
 
 // Called when the game starts or when spawned
@@ -26,7 +26,11 @@ void ALitUpLightTarget::BeginPlay()
 	Super::BeginPlay();
 	Target->SetStaticMesh(TargetMeshAsset);
 
-	//dynamicLaserMaterialInstanceDynamic->SetVectorParameterValue(FName("TargetColor"), calculateColorFromWaveLength());
+	FVector color = calculateColorFromWaveLength();
+
+	GEngine->AddOnScreenDebugMessage(-14, 1.f, FColor::Yellow, FString::Printf(TEXT("x: %f y: %f x: %f"), color.X, color.Y, color.Z));
+
+	//dynamicTargetMaterialInstanceDynamic->SetVectorParameterValue(FName("TargetColor"), color);
 }
 
 // Called every frame
@@ -51,7 +55,7 @@ bool ALitUpLightTarget::ShouldTickIfViewportsOnly() const
 
 void ALitUpLightTarget::exec(float &waveLength)
 {
-	if (UseWaveLength && waveLength == WaveLength)
+	if (!UseWaveLength || (UseWaveLength && waveLength == WaveLength))
 	{
 		if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, TEXT("Hit!"));
 
