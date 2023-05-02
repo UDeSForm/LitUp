@@ -42,10 +42,4 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "BlueprintClass")
 		AActor* bpActor;
-
-
-private:
-	UMaterialInstanceDynamic* dynamicTargetMaterialInstanceDynamic;
-
-	inline FVector calculateColorFromWaveLength();
 };
