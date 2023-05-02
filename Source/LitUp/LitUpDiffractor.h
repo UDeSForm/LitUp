@@ -14,6 +14,9 @@ class LITUP_API ALitUpDiffractor : public AActor
 	GENERATED_BODY()
 
 		UPROPERTY(VisibleDefaultsOnly)
+		USceneComponent* Origin;
+
+		UPROPERTY(VisibleDefaultsOnly)
 		UStaticMeshComponent* Diffractor;
 
 	UPROPERTY(EditAnywhere)
@@ -38,6 +41,6 @@ public:
 	void CalculerPatronDiffraction();
 	void exec();
 private:
-	int pixels[16][16];
-	//UTextureRenderTarget2D patronDiffraction;
+	int pixels[1024][1024];
+	UTextureRenderTarget2D patronDiffraction;
 };
