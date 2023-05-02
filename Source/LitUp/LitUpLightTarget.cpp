@@ -17,7 +17,7 @@ ALitUpLightTarget::ALitUpLightTarget()
 
 	static ConstructorHelpers::FObjectFinder<UMaterial>targetMaterial(TEXT("Material'/Game/CustomActors/Materials/M_TargetColor.M_TargetColor'"));
 	dynamicTargetMaterialInstanceDynamic = UMaterialInstanceDynamic::Create(targetMaterial.Object, Target);
-	Target->SetMaterial(1, dynamicTargetMaterialInstanceDynamic);
+	//Target->SetMaterial(1, dynamicTargetMaterialInstanceDynamic);
 }
 
 // Called when the game starts or when spawned
