@@ -51,7 +51,7 @@ bool ALitUpLightTarget::ShouldTickIfViewportsOnly() const
 
 void ALitUpLightTarget::exec(float &waveLength)
 {
-	if (!UseWaveLength || (UseWaveLength && waveLength == WaveLength))
+	if (UseWaveLength && waveLength == WaveLength)
 	{
 		if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, TEXT("Hit!"));
 
