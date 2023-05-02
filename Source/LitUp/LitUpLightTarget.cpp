@@ -15,7 +15,7 @@ ALitUpLightTarget::ALitUpLightTarget()
 	Target->SetStaticMesh(CubeMeshAsset.Object);
 	SetRootComponent(Target);
 
-	static ConstructorHelpers::FObjectFinder<UMaterial>laserMaterial(TEXT("Material '/Game/Materials/M_TargetColor.M_TargetColor'"));
+	static ConstructorHelpers::FObjectFinder<UMaterial>laserMaterial(TEXT("Material'/Game/CustomActors/Materials/M_TargetColor.M_TargetColor'"));
 	dynamicLaserMaterialInstanceDynamic = UMaterialInstanceDynamic::Create(laserMaterial.Object, Target);
 	Target->SetMaterial(1, dynamicLaserMaterialInstanceDynamic);
 }
