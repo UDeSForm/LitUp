@@ -94,24 +94,36 @@ inline void ALitUpDiffractor::CalculerPatronDiffraction()
 		int hauteurFente = furthestY - nearestY + 1;
 		int coorX = ((largeurFente / 2.0 + nearestX) * 64);
 		int coorY = ((hauteurFente / 2.0 + nearestY) * 64);
-		GEngine->AddOnScreenDebugMessage(-17, 10.f, FColor::Yellow, FString::Printf(TEXT("%i"), coorX));
-		GEngine->AddOnScreenDebugMessage(-18, 10.f, FColor::Yellow, FString::Printf(TEXT("%i"), coorY));
+		GEngine->AddOnScreenDebugMessage(-17, 10.f, FColor::Yellow, FString::Printf(TEXT("Milieu X: %i"), coorX));
+		GEngine->AddOnScreenDebugMessage(-18, 10.f, FColor::Yellow, FString::Printf(TEXT("Milieu Y: %i"), coorY));
+		int testX = 560;
+		int testY = 560;
+		GEngine->AddOnScreenDebugMessage(-19, 10.f, FColor::Yellow, FString::Printf(TEXT("test X : %i"), testX));
+		GEngine->AddOnScreenDebugMessage(-20, 10.f, FColor::Yellow, FString::Printf(TEXT("test Y: %i"), testY));
 		for (int x = 0; x < 1024; x++)
 		{
 			for (int y = coorY - (32 * (hauteurFente)); y < coorY + (32 * (hauteurFente)); y++)
 			{
 				float dPointPatron = sqrt((x - coorX) * taillePixelM * (x - coorX) * taillePixelM + (y - coorY) * taillePixelM * (y - coorY) * taillePixelM);
-				if(x == 0 && y == (coorY-64)) GEngine->AddOnScreenDebugMessage(-19, 10.f, FColor::Yellow, FString::Printf(TEXT("%f"), dPointPatron));
+				
 				float hypotenuse = sqrt(distanceMurM * distanceMurM + dPointPatron * dPointPatron);
 
-				float m = ((furthestX - nearestX) * dPointPatron) / (hypotenuse * WaveLength);
+				float m = (((largeurFente * pixelFente)/1000000000.f) * dPointPatron) / (hypotenuse * (WaveLength / 1000000000.f));
+				if (x == testX && y == testY)
+				{
+					GEngine->AddOnScreenDebugMessage(-21, 10.f, FColor::Yellow, FString::Printf(TEXT("Distance point-Milieu: %f"), dPointPatron));
+					GEngine->AddOnScreenDebugMessage(-22, 10.f, FColor::Yellow, FString::Printf(TEXT("Hyp: %f"), hypotenuse));
+					GEngine->AddOnScreenDebugMessage(-23, 10.f, FColor::Yellow, FString::Printf(TEXT("m: %f"), m));
+
+				}
+					
 				if (m >= 0 && m < 1)
 				{
-					pixels[x][y] += (cos(PI * m) / 2 + 0.5);
+					//pixels[x][y] += (cos(PI * m) / 2 + 0.5);
 				}
 				else
 				{
-					pixels[x][y] += ((cos(2 * PI * m + PI) / 2 + 0.5) * (1 / abs(m)));
+					//pixels[x][y] += ((cos(2 * PI * m + PI) / 2 + 0.5) * (1 / abs(m)));
 				}
 			}
 		}
@@ -123,7 +135,7 @@ inline void ALitUpDiffractor::CalculerPatronDiffraction()
 				float dPointPatron = sqrt((x - coorX) * taillePixelM * (x - coorX) * taillePixelM + (y - coorY) * taillePixelM * (y - coorY) * taillePixelM);
 				float hypotenuse = sqrt(distanceMurM * distanceMurM + dPointPatron * dPointPatron);
 
-				float m = ((furthestY - nearestY) * dPointPatron) / (hypotenuse * WaveLength);
+				float m = (((hauteurFente * pixelFente)/1000000000.f) * dPointPatron) / (hypotenuse * WaveLength / 1000000000.f);
 				if (m >= 0 && m < 1)
 				{
 					pixels[x][y] += (cos(PI * m) / 2 + 0.5);
@@ -134,7 +146,7 @@ inline void ALitUpDiffractor::CalculerPatronDiffraction()
 				}
 			}
 		}
-		GEngine->AddOnScreenDebugMessage(-16, 10.f, FColor::Yellow, FString::Printf(TEXT("%f"), pixels[300][512]));
+		GEngine->AddOnScreenDebugMessage(-24, 10.f, FColor::Yellow, FString::Printf(TEXT("%f"), pixels[testX][testY]));
 		RawImageData.Unlock();
 	}
 

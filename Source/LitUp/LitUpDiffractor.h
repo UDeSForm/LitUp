@@ -44,6 +44,6 @@ public:
 	void exec();
 private:
 	float pixels[1024][1024] = {0};
-	float pixelFente = 1000.f;
+	float pixelFente = 1180.f;
 	//UTextureRenderTarget2D patronDiffraction;
 };
