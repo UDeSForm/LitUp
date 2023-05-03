@@ -62,42 +62,79 @@ inline void ALitUpDiffractor::CalculerPatronDiffraction()
 
 	if (GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_WorldStatic, CollisionParams))
 	{
-		float distanceMurNM = OutHit.Distance;
-		GEngine->AddOnScreenDebugMessage(-14, 1.f, FColor::Yellow, FString::Printf(TEXT("%f"), distanceMurNM));
-		float taillePixelNM = (distanceMurNM) / 1024.f;
-		GEngine->AddOnScreenDebugMessage(-15, 1.f, FColor::Yellow, FString::Printf(TEXT("%f"), taillePixelNM));
+		float distanceMurM = OutHit.Distance / 100.f;
+		float taillePixelM = (distanceMurM) / 1024.f;
 		int sizeX = Fente->GetSizeX();
 		int sizeY = Fente->GetSizeY();
+		int nearestX = sizeX;
+		int nearestY = sizeY;
+		int furthestX = 0;
+		int furthestY = 0;
 
 		FTexture2DMipMap MyMipMap = Fente->GetPlatformData()->Mips[0];
 		FByteBulkData RawImageData = MyMipMap.BulkData;
 		FColor* FormatedImageData = static_cast<FColor*>(RawImageData.Lock(LOCK_READ_ONLY));
-
 		for (int i = 0; i < sizeX; i++)
 		{
 			for (int j = 0; j < sizeY; j++)
 			{
-
 				FColor PixelColor = FormatedImageData[j * sizeX + i];
 				if (PixelColor.R > 0)
 				{
-					int coorX = (i * 64) + 32;
-					int coorY = (j * 64) + 32;
-					for (int x = 0; x < 1024; x++)
-					{
-						for (int y = 0; y < 1024; y++)
-						{
-							float dPointPatron = sqrt((x - coorX) * taillePixelNM * (x - coorX) * taillePixelNM + (y - coorY) * taillePixelNM * (y - coorY) * taillePixelNM);
-							float distance = sqrt((distanceMurNM * distanceMurNM) + dPointPatron * dPointPatron);
+					
+					if (i < nearestX) nearestX = i;
+					if (j < nearestY) nearestY = j;
 
-
-							pixels[x][y] += (distance / WaveLength);
-						}
-					}
+					if (i > furthestX) furthestX = i;
+					if (j > furthestY) furthestY = j;	
 				}
-
 			}
 		}
+		int largeurFente = furthestX - nearestX + 1;
+		int hauteurFente = furthestY - nearestY + 1;
+		int coorX = ((largeurFente / 2.0 + nearestX) * 64);
+		int coorY = ((hauteurFente / 2.0 + nearestY) * 64);
+		GEngine->AddOnScreenDebugMessage(-17, 10.f, FColor::Yellow, FString::Printf(TEXT("%i"), coorX));
+		GEngine->AddOnScreenDebugMessage(-18, 10.f, FColor::Yellow, FString::Printf(TEXT("%i"), coorY));
+		for (int x = 0; x < 1024; x++)
+		{
+			for (int y = coorY - (32 * (hauteurFente)); y < coorY + (32 * (hauteurFente)); y++)
+			{
+				float dPointPatron = sqrt((x - coorX) * taillePixelM * (x - coorX) * taillePixelM + (y - coorY) * taillePixelM * (y - coorY) * taillePixelM);
+				if(x == 0 && y == (coorY-64)) GEngine->AddOnScreenDebugMessage(-19, 10.f, FColor::Yellow, FString::Printf(TEXT("%f"), dPointPatron));
+				float hypotenuse = sqrt(distanceMurM * distanceMurM + dPointPatron * dPointPatron);
+
+				float m = ((furthestX - nearestX) * dPointPatron) / (hypotenuse * WaveLength);
+				if (m >= 0 && m < 1)
+				{
+					pixels[x][y] += (cos(PI * m) / 2 + 0.5);
+				}
+				else
+				{
+					pixels[x][y] += ((cos(2 * PI * m + PI) / 2 + 0.5) * (1 / abs(m)));
+				}
+			}
+		}
+
+		for (int x = coorX - (32 * (furthestX - nearestX)); x < coorX + (32 * (furthestX - nearestX)); x++)
+		{
+			for (int y = 0; y < 1024; y++)
+			{
+				float dPointPatron = sqrt((x - coorX) * taillePixelM * (x - coorX) * taillePixelM + (y - coorY) * taillePixelM * (y - coorY) * taillePixelM);
+				float hypotenuse = sqrt(distanceMurM * distanceMurM + dPointPatron * dPointPatron);
+
+				float m = ((furthestY - nearestY) * dPointPatron) / (hypotenuse * WaveLength);
+				if (m >= 0 && m < 1)
+				{
+					pixels[x][y] += (cos(PI * m) / 2 + 0.5);
+				}
+				else
+				{
+					pixels[x][y] += ((cos(2 * PI * m + PI) / 2 + 0.5) * (1 / abs(m)));
+				}
+			}
+		}
+		GEngine->AddOnScreenDebugMessage(-16, 10.f, FColor::Yellow, FString::Printf(TEXT("%f"), pixels[300][512]));
 		RawImageData.Unlock();
 	}
 
