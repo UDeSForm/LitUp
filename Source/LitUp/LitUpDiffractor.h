@@ -52,5 +52,5 @@ private:
 	UTexture2D* patronDiffraction;
 	inline FVector calculateColorFromWaveLength();
 	ADecalActor* decal;
-	UMaterialInstanceDynamic* dynamicDiffractionMaterialInstanceDynamic;
+	UMaterial* diffractionMaterial;
 };

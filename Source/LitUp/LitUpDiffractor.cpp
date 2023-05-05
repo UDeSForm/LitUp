@@ -17,9 +17,9 @@ ALitUpDiffractor::ALitUpDiffractor()
 
 	static ConstructorHelpers::FObjectFinder<UStaticMesh>CubeMeshAsset(TEXT("StaticMesh'/Engine/BasicShapes/Cube.Cube'"));
 	Diffractor->SetStaticMesh(CubeMeshAsset.Object);
-	
-	static ConstructorHelpers::FObjectFinder<UMaterial>diffractionMaterial(TEXT("Material'/Game/Materials/M_Diffraction.M_Diffraction'"));
-	dynamicDiffractionMaterialInstanceDynamic = UMaterialInstanceDynamic::Create(diffractionMaterial.Object, Diffractor);
+
+	static ConstructorHelpers::FObjectFinder<UMaterial>dMaterial(TEXT("Material'/Game/Materials/M_Diffraction.M_Diffraction'"));
+	diffractionMaterial = dMaterial.Object;
 }
 
 // Called when the game starts or when spawned
@@ -27,19 +27,27 @@ void ALitUpDiffractor::BeginPlay()
 {
 	Super::BeginPlay();
 	Diffractor->SetStaticMesh(DiffractorMeshAsset);
-	CalculerPatronDiffraction();
 
-	decal = GetWorld()->SpawnActor<ADecalActor>(Origin->GetComponentLocation(), FRotator(0,0,0));
+	decal = GetWorld()->SpawnActor<ADecalActor>(Origin->GetComponentLocation(), FRotator(0.f,0.f,0.f));
 	if (decal)
 	{
-		decal->SetDecalMaterial(dynamicDiffractionMaterialInstanceDynamic);
-		decal->GetDecal()->DecalSize = FVector(1.0f, 1.0f, 1.0f);
+		decal->GetDecal()->DecalSize = FVector(50.0f, 50.0f, 50.0f);
 		decal->SetActorHiddenInGame(true);
-		//dynamicDiffractionMaterialInstanceDynamic->SetTextureParameterValue("Patron", patronDiffraction);
+
+		decal->SetDecalMaterial(diffractionMaterial);
 	}
 	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("No decal spawned"));
+	}
+
+	CalculerPatronDiffraction();
+
+	if (decal)
+	{
+		UMaterialInstanceDynamic* dynamicDiffractionMaterialInstanceDynamic = decal->CreateDynamicMaterialInstance();
+		dynamicDiffractionMaterialInstanceDynamic->SetTextureParameterValue("Patron", patronDiffraction);
+		decal->SetDecalMaterial(dynamicDiffractionMaterialInstanceDynamic);
 	}
 }
 
@@ -75,9 +83,14 @@ inline void ALitUpDiffractor::CalculerPatronDiffraction()
 	FCollisionQueryParams CollisionParams;
 	CollisionParams.bTraceComplex = true;
 
-
 	if (GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_WorldStatic, CollisionParams))
 	{
+		//DrawDebugLine(GetWorld(), Start, OutHit.Location, FColor::Green, true, 0.04, 0, 10);
+
+		Start += ForwardVector * 100.f;
+
+		decal->SetActorTransform(FTransform(FRotator(0, 0, 0) + ForwardVector.Rotation(), (OutHit.Location - Start) / 2.f + Start + ForwardVector * 0.01, FVector(OutHit.Distance / 100.f, 1, 1)));
+
 		float distanceMurM = OutHit.Distance / 100.f;
 		float taillePixelM = (distanceMurM) / (float)size;
 		int sizeX = Fente->GetSizeX();
@@ -156,7 +169,7 @@ inline void ALitUpDiffractor::CalculerPatronDiffraction()
 				float dPointPatron = sqrt((x - coorX) * taillePixelM * (x - coorX) * taillePixelM + (y - coorY) * taillePixelM * (y - coorY) * taillePixelM);
 				float hypotenuse = sqrt(distanceMurM * distanceMurM + dPointPatron * dPointPatron);
 
-				float m = (((hauteurFente * pixelFente)/1000000000.f) * dPointPatron) / (hypotenuse * WaveLength / 1000000000.f);
+				float m = (((hauteurFente * pixelFente) / 1000000000.f) * dPointPatron) / (hypotenuse * WaveLength / 1000000000.f);
 				if (m >= 0 && m < 1)
 				{
 					pixelsPatron[x + y * size] = FColor(colorPatron.X, colorPatron.Y, colorPatron.Z, pixelsPatron[x + y * size].A + ((cos(PI * m) / 2 + 0.5) / 2));
@@ -179,7 +192,6 @@ inline void ALitUpDiffractor::CalculerPatronDiffraction()
 
 void ALitUpDiffractor::exec(float rayWaveLength)
 {
-
 	if (rayWaveLength == WaveLength)
 	{
 		tick = true;
