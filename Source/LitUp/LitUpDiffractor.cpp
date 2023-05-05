@@ -89,103 +89,82 @@ inline void ALitUpDiffractor::CalculerPatronDiffraction()
 
 		Start += ForwardVector * 100.f;
 
-		decal->SetActorTransform(FTransform(FRotator(0, 0, 0) + ForwardVector.Rotation(), (OutHit.Location - Start) / 2.f + Start + ForwardVector * 0.01, FVector(OutHit.Distance / 100.f, 1, 1)));
+		decal->SetActorTransform(FTransform(FRotator(0, 0, 90) + ForwardVector.Rotation(), (OutHit.Location - Start) / 2.f + Start + ForwardVector * 0.01, FVector(OutHit.Distance / 100.f, OutHit.Distance / 200.f, OutHit.Distance / 200.f)));
 
-		float distanceMurM = OutHit.Distance / 100.f;
-		float taillePixelM = (distanceMurM) / (float)size;
-		int sizeX = Fente->GetSizeX();
-		int sizeY = Fente->GetSizeY();
-		int nearestX = sizeX;
-		int nearestY = sizeY;
-		int furthestX = 0;
-		int furthestY = 0;
+		double r = OutHit.Distance / 100.f;
+		double taillePixelM = (r) / (float)size;
+		int fsX = Fente->GetSizeX();
+		int fsY = Fente->GetSizeY();
+		int nX = fsX;
+		int nY = fsY;
+		int fX = 0;
+		int fY = 0;
 
 		FTexture2DMipMap MyMipMap = Fente->GetPlatformData()->Mips[0];
 		FByteBulkData RawImageData = MyMipMap.BulkData;
-
-		FVector colorPatron = calculateColorFromWaveLength();
-		
-		pixelsPatron.SetNumZeroed(size * size);
-
 		FColor* FormatedImageData = static_cast<FColor*>(RawImageData.Lock(LOCK_READ_ONLY));
-		for (int i = 0; i < sizeX; i++)
+		for (int i = 0; i < fsX; i++)
 		{
-			for (int j = 0; j < sizeY; j++)
+			for (int j = 0; j < fsY; j++)
 			{
-				FColor PixelColor = FormatedImageData[j * sizeX + i];
+				FColor PixelColor = FormatedImageData[j * fsX + i];
 				if (PixelColor.R > 0)
 				{
-					
-					if (i < nearestX) nearestX = i;
-					if (j < nearestY) nearestY = j;
+					if (i < nX) nX = i;
+					if (j < nY) nY = j;
 
-					if (i > furthestX) furthestX = i;
-					if (j > furthestY) furthestY = j;	
+					if (i > fX) fX = i;
+					if (j > fY) fY = j;	
 				}
 			}
 		}
-		int largeurFente = furthestX - nearestX + 1;
-		int hauteurFente = furthestY - nearestY + 1;
-		int coorX = ((largeurFente / 2.0 + nearestX) * (size/sizeX));
-		int coorY = ((hauteurFente / 2.0 + nearestY) * (size/sizeY));
-		GEngine->AddOnScreenDebugMessage(-17, 10.f, FColor::Yellow, FString::Printf(TEXT("Milieu X: %i"), coorX));
-		GEngine->AddOnScreenDebugMessage(-18, 10.f, FColor::Yellow, FString::Printf(TEXT("Milieu Y: %i"), coorY));
-		int testX = 560;
-		int testY = 560;
-		GEngine->AddOnScreenDebugMessage(-19, 10.f, FColor::Yellow, FString::Printf(TEXT("test X : %i"), testX));
-		GEngine->AddOnScreenDebugMessage(-20, 10.f, FColor::Yellow, FString::Printf(TEXT("test Y: %i"), testY));
-		for (int x = 0; x < size; x++)
-		{
-			for (int y = coorY - ((size/(2*sizeY)) * (hauteurFente)); y < coorY + ((size / (2 * sizeY)) * (hauteurFente)); y++)
-			{
-				float dPointPatron = sqrt((x - coorX) * taillePixelM * (x - coorX) * taillePixelM + (y - coorY) * taillePixelM * (y - coorY) * taillePixelM);
-				
-				float hypotenuse = sqrt(distanceMurM * distanceMurM + dPointPatron * dPointPatron);
-
-				float m = (((largeurFente * pixelFente)/1000000000.f) * dPointPatron) / (hypotenuse * (WaveLength / 1000000000.f));
-				if (x == testX && y == testY)
-				{
-					GEngine->AddOnScreenDebugMessage(-21, 10.f, FColor::Yellow, FString::Printf(TEXT("Distance point-Milieu: %f"), dPointPatron));
-					GEngine->AddOnScreenDebugMessage(-22, 10.f, FColor::Yellow, FString::Printf(TEXT("Hyp: %f"), hypotenuse));
-					GEngine->AddOnScreenDebugMessage(-23, 10.f, FColor::Yellow, FString::Printf(TEXT("m: %f"), m));
-
-				}
-					
-				if (m >= 0 && m < 1)
-				{
-					pixelsPatron[x + y * size] = FColor(colorPatron.X, colorPatron.Y, colorPatron.Z, pixelsPatron[x + y * size].A + (1 - ((cos(PI * m) / 2 + 0.5) / 2)) * 255);
-				}
-				else
-				{
-					pixelsPatron[x + y * size] = FColor(colorPatron.X, colorPatron.Y, colorPatron.Z, pixelsPatron[x + y * size].A + (1 - (((cos(2 * PI * m + PI) / 2 + 0.5) * (1 / abs(m))) / 2)) * 255);
-				}
-			}
-		}
-
-		for (int x = coorX - ((size / (2 * sizeX)) * (furthestX - nearestX)); x < coorX + ((size / (2 * sizeX)) * (furthestX - nearestX)); x++)
-		{
-			for (int y = 0; y < size; y++)
-			{
-				float dPointPatron = sqrt((x - coorX) * taillePixelM * (x - coorX) * taillePixelM + (y - coorY) * taillePixelM * (y - coorY) * taillePixelM);
-				float hypotenuse = sqrt(distanceMurM * distanceMurM + dPointPatron * dPointPatron);
-
-				float m = (((hauteurFente * pixelFente) / 1000000000.f) * dPointPatron) / (hypotenuse * WaveLength / 1000000000.f);
-				if (m >= 0 && m < 1)
-				{
-					pixelsPatron[x + y * size] = FColor(colorPatron.X, colorPatron.Y, colorPatron.Z, pixelsPatron[x + y * size].A + (1 - ((cos(PI * m) / 2 + 0.5) / 2)) * 255);
-				}
-				else
-				{
-					pixelsPatron[x + y * size] = FColor(colorPatron.X, colorPatron.Y, colorPatron.Z, pixelsPatron[x + y * size].A + (1 - (((cos(2 * PI * m + PI) / 2 + 0.5) * (1 / abs(m))) / 2)) * 255);
-				}
-			}
-		}
-		//GEngine->AddOnScreenDebugMessage(-24, 10.f, FColor::Yellow, FString::Printf(TEXT("%f"), pixelsAlpha[testX + testY * size]));
 		RawImageData.Unlock();
 
-		
+		// Credits: Petr Klapetek http://gsvit.net/tutorial/a_grating.php
 
-		FCreateTexture2DParameters params;	
+		double p = (fX - nX + 1);
+		double q = (fY - nY + 1);
+		int ccx = ((p / 2 + nX) * (size/fsX));
+		int ccy = ((q / 2 + nY) * (size/fsY));
+		double k = (2.f * PI) / (WaveLength / 1000000000.f);
+
+		double Apq = p * q;
+		p *= pixelFente;
+		q *= pixelFente;
+
+		TArray<double> xwave;
+		xwave.SetNumZeroed(size);
+		for (int x = -ccx; x < size - ccx; x++)
+		{
+			double xwavet = sin((k * p * x) / (2.f * r));
+			double xwaveb = (k * p * x) / (2.f * r);
+			xwave[x + ccx] = xwavet / xwaveb;
+		}
+
+		TArray<double> ywave;
+		ywave.SetNumZeroed(size);
+		for (int y = -ccy; y < size - ccy; y++)
+		{
+			double ywavet = sin((k * q * y) / (2.f * r));
+			double ywaveb = (k * q * y) / (2.f * r);
+			ywave[y + ccy] = ywavet / ywaveb;
+		}
+
+		FVector colorPatron = calculateColorFromWaveLength();
+		pixelsPatron.SetNumZeroed(size * size);
+		for (int y = 0; y < size; y++)
+		{
+			for (int x = 0; x < size; x++)
+			{
+				double waves = xwave[x] * ywave[y];
+				double sqrtresult = Apq * waves;
+				double result = sqrtresult * sqrtresult;
+				pixelsPatron[x + y * size] = FColor(colorPatron.X, colorPatron.Y, colorPatron.Z, result * 128);
+			}
+		}
+
+		FCreateTexture2DParameters params;
+		params.bUseAlpha = true;
 		patronDiffraction = FImageUtils::CreateTexture2D(size, size, pixelsPatron, Diffractor, "Patron", EObjectFlags::RF_Transient, params);
 	}
 }

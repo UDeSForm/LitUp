@@ -47,8 +47,8 @@ public:
 private:
 	bool tick = false;
 	TArray<FColor> pixelsPatron;
-	float pixelFente = 1180.f;
-	int size = 1024;
+	double pixelFente = 0.0000000118f;
+	int size = 4096;
 	UTexture2D* patronDiffraction;
 	inline FVector calculateColorFromWaveLength();
 	ADecalActor* decal;
