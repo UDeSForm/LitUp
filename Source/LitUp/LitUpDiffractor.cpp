@@ -18,6 +18,8 @@ ALitUpDiffractor::ALitUpDiffractor()
 	static ConstructorHelpers::FObjectFinder<UStaticMesh>CubeMeshAsset(TEXT("StaticMesh'/Engine/BasicShapes/Cube.Cube'"));
 	Diffractor->SetStaticMesh(CubeMeshAsset.Object);
 	
+	static ConstructorHelpers::FObjectFinder<UMaterial>diffractionMaterial(TEXT("Material'/Game/Materials/M_Diffraction.M_Diffraction'"));
+	dynamicDiffractionMaterialInstanceDynamic = UMaterialInstanceDynamic::Create(diffractionMaterial.Object, Diffractor);
 }
 
 // Called when the game starts or when spawned
@@ -26,18 +28,27 @@ void ALitUpDiffractor::BeginPlay()
 	Super::BeginPlay();
 	Diffractor->SetStaticMesh(DiffractorMeshAsset);
 	CalculerPatronDiffraction();
+
+	decal = GetWorld()->SpawnActor<ADecalActor>(Origin->GetComponentLocation(), FRotator(0,0,0));
+	if (decal)
+	{
+		decal->SetDecalMaterial(dynamicDiffractionMaterialInstanceDynamic);
+		decal->GetDecal()->DecalSize = FVector(1.0f, 1.0f, 1.0f);
+		decal->SetActorHiddenInGame(true);
+		//dynamicDiffractionMaterialInstanceDynamic->SetTextureParameterValue("Patron", patronDiffraction);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("No decal spawned"));
+	}
 }
 
 // Called every frame
 void ALitUpDiffractor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	previousTick = currentTick;
-	if (previousTick)
-	{
-		//show decal
-	}
-	currentTick = false;
+	if (decal) decal->SetActorHiddenInGame(!tick);
+	tick = false;
 }
 
 // This ultimately is what controls whether or not it can even tick at all in the editor view port. 
@@ -171,7 +182,7 @@ void ALitUpDiffractor::exec(float rayWaveLength)
 
 	if (rayWaveLength == WaveLength)
 	{
-		currentTick = true;
+		tick = true;
 	}
 }
 

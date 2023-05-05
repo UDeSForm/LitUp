@@ -6,6 +6,8 @@
 #include "GameFramework/Actor.h"
 #include "Engine/Texture2D.h"
 #include "ImageUtils.h"
+#include "Engine/DecalActor.h"
+#include "Components/DecalComponent.h"
 #include "LitUpDiffractor.generated.h"
 
 UCLASS()
@@ -43,11 +45,12 @@ public:
 	void CalculerPatronDiffraction();
 	void exec(float rayWaveLength);
 private:
-	bool currentTick = false;
-	bool previousTick;
+	bool tick = false;
 	TArray<FColor> pixelsPatron;
 	float pixelFente = 1180.f;
 	int size = 1024;
 	UTexture2D* patronDiffraction;
 	inline FVector calculateColorFromWaveLength();
+	ADecalActor* decal;
+	UMaterialInstanceDynamic* dynamicDiffractionMaterialInstanceDynamic;
 };
