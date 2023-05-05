@@ -48,4 +48,5 @@ private:
 	float pixels[1024][1024] = {0};
 	float pixelFente = 1180.f;
 	UTexture2D* patronDiffraction;
+	inline FVector calculateColorFromWaveLength();
 };

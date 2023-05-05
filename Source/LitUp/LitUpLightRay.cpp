@@ -117,7 +117,7 @@ void ALitUpLightRay::Tick(float DeltaTime)
 		nextLightRay->maxRays = maxRays - 1;
 	}
 
-	dynamicLaserMaterialInstanceDynamic->SetVectorParameterValue(FName("LaserColor"), calculateColorFromWaveLength(waveLength));
+	dynamicLaserMaterialInstanceDynamic->SetVectorParameterValue(FName("LaserColor"), calculateColorFromWaveLength());
 }
 
 // This ultimately is what controls whether or not it can even tick at all in the editor view port. 
@@ -231,44 +231,44 @@ inline void ALitUpLightRay::Refraction(const FVector& Direction, const FVector& 
 	}
 }
 
-inline static FVector ALitUpLightRay::calculateColorFromWaveLength(float waveLength)
+inline FVector ALitUpLightRay::calculateColorFromWaveLength()
 {
 	// Credits: Dan Bruton http://www.physics.sfasu.edu/astro/color.html
 	double red = 0.0;
 	double green = 0.0;
 	double blue = 0.0;
 
-	if ((380.0 <= waveLength) && (waveLength <= 439.0))
+	if ((380.0 <= wavelength) && (wavelength <= 439.0))
 	{
-		red = -(waveLength - 440.0) / (440.0 - 380.0);
+		red = -(wavelength - 440.0) / (440.0 - 380.0);
 		green = 0.0;
 		blue = 1.0;
 	}
-	else if ((440.0 <= waveLength) && (waveLength <= 489.0))
+	else if ((440.0 <= wavelength) && (wavelength <= 489.0))
 	{
 		red = 0.0;
-		green = (waveLength - 440.0) / (490.0 - 440.0);
+		green = (wavelength - 440.0) / (490.0 - 440.0);
 		blue = 1.0;
 	}
-	else if ((490.0 <= waveLength) && (waveLength <= 509.0))
+	else if ((490.0 <= wavelength) && (wavelength <= 509.0))
 	{
 		red = 0.0;
 		green = 1.0;
-		blue = -(waveLength - 510.0) / (510.0 - 490.0);
+		blue = -(wavelength - 510.0) / (510.0 - 490.0);
 	}
-	else if ((510.0 <= waveLength) && (waveLength <= 579.0))
+	else if ((510.0 <= wavelength) && (wavelength <= 579.0))
 	{
-		red = (waveLength - 510.0) / (580.0 - 510.0);
+		red = (wavelength - 510.0) / (580.0 - 510.0);
 		green = 1.0;
 		blue = 0.0;
 	}
-	else if ((580.0 <= waveLength) && (waveLength <= 644.0))
+	else if ((580.0 <= wavelength) && (wavelength <= 644.0))
 	{
 		red = 1.0;
-		green = -(waveLength - 645.0) / (645.0 - 580.0);
+		green = -(wavelength - 645.0) / (645.0 - 580.0);
 		blue = 0.0;
 	}
-	else if ((645.0 <= waveLength) && (waveLength <= 780.0))
+	else if ((645.0 <= wavelength) && (wavelength <= 780.0))
 	{
 		red = 1.0;
 		green = 0.0;
@@ -277,12 +277,12 @@ inline static FVector ALitUpLightRay::calculateColorFromWaveLength(float waveLen
 
 	double factor = 0.0;
 
-	if ((380.0 <= waveLength) && (waveLength <= 419.0))
-		factor = 0.3 + 0.7 * (waveLength - 380.0) / (420.0 - 380.0);
-	else if ((420.0 <= waveLength) && (waveLength <= 700.0))
+	if ((380.0 <= wavelength) && (wavelength <= 419.0))
+		factor = 0.3 + 0.7 * (wavelength - 380.0) / (420.0 - 380.0);
+	else if ((420.0 <= wavelength) && (wavelength <= 700.0))
 		factor = 1.0;
-	else if ((701.0 <= waveLength) && (waveLength <= 780.0))
-		factor = 0.3 + 0.7 * (780.0 - waveLength) / (780.0 - 700.0);
+	else if ((701.0 <= wavelength) && (wavelength <= 780.0))
+		factor = 0.3 + 0.7 * (780.0 - wavelength) / (780.0 - 700.0);
 	else
 		factor = 0.0;
 
