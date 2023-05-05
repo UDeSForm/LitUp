@@ -39,7 +39,6 @@ ALitUpLightRay::ALitUpLightRay()
 	LightRay->SetRelativeTransform(FTransform(FRotator(90, 0, 0), FVector(length / 2.f, 0, 0), FVector(0.05, 0.05, length / 100.f)));
 	LightRay->CastShadow = false;
 	LightRay->bEmissiveLightSource = true;
-
 }
 
 // Called when the game starts or when spawned
@@ -92,7 +91,7 @@ void ALitUpLightRay::Tick(float DeltaTime)
 		{
 			goNext(false);
 
-			Cast<ALitUpDiffractor>(OutHit.GetActor())->exec();
+			Cast<ALitUpDiffractor>(OutHit.GetActor())->exec(wavelength);
 		}
 		else
 		{
@@ -232,44 +231,44 @@ inline void ALitUpLightRay::Refraction(const FVector& Direction, const FVector& 
 	}
 }
 
-inline FVector ALitUpLightRay::calculateColorFromWaveLength()
+inline FVector ALitUpLightRay::calculateColorFromWaveLength(float waveLength)
 {
 	// Credits: Dan Bruton http://www.physics.sfasu.edu/astro/color.html
 	double red = 0.0;
 	double green = 0.0;
 	double blue = 0.0;
 
-	if ((380.0 <= wavelength) && (wavelength <= 439.0))
+	if ((380.0 <= waveLength) && (waveLength <= 439.0))
 	{
-		red = -(wavelength - 440.0) / (440.0 - 380.0);
+		red = -(waveLength - 440.0) / (440.0 - 380.0);
 		green = 0.0;
 		blue = 1.0;
 	}
-	else if ((440.0 <= wavelength) && (wavelength <= 489.0))
+	else if ((440.0 <= waveLength) && (waveLength <= 489.0))
 	{
 		red = 0.0;
-		green = (wavelength - 440.0) / (490.0 - 440.0);
+		green = (waveLength - 440.0) / (490.0 - 440.0);
 		blue = 1.0;
 	}
-	else if ((490.0 <= wavelength) && (wavelength <= 509.0))
+	else if ((490.0 <= waveLength) && (waveLength <= 509.0))
 	{
 		red = 0.0;
 		green = 1.0;
-		blue = -(wavelength - 510.0) / (510.0 - 490.0);
+		blue = -(waveLength - 510.0) / (510.0 - 490.0);
 	}
-	else if ((510.0 <= wavelength) && (wavelength <= 579.0))
+	else if ((510.0 <= waveLength) && (waveLength <= 579.0))
 	{
-		red = (wavelength - 510.0) / (580.0 - 510.0);
+		red = (waveLength - 510.0) / (580.0 - 510.0);
 		green = 1.0;
 		blue = 0.0;
 	}
-	else if ((580.0 <= wavelength) && (wavelength <= 644.0))
+	else if ((580.0 <= waveLength) && (waveLength <= 644.0))
 	{
 		red = 1.0;
-		green = -(wavelength - 645.0) / (645.0 - 580.0);
+		green = -(waveLength - 645.0) / (645.0 - 580.0);
 		blue = 0.0;
 	}
-	else if ((645.0 <= wavelength) && (wavelength <= 780.0))
+	else if ((645.0 <= waveLength) && (waveLength <= 780.0))
 	{
 		red = 1.0;
 		green = 0.0;
@@ -278,12 +277,12 @@ inline FVector ALitUpLightRay::calculateColorFromWaveLength()
 
 	double factor = 0.0;
 
-	if ((380.0 <= wavelength) && (wavelength <= 419.0))
-		factor = 0.3 + 0.7 * (wavelength - 380.0) / (420.0 - 380.0);
-	else if ((420.0 <= wavelength) && (wavelength <= 700.0))
+	if ((380.0 <= waveLength) && (waveLength <= 419.0))
+		factor = 0.3 + 0.7 * (waveLength - 380.0) / (420.0 - 380.0);
+	else if ((420.0 <= waveLength) && (waveLength <= 700.0))
 		factor = 1.0;
-	else if ((701.0 <= wavelength) && (wavelength <= 780.0))
-		factor = 0.3 + 0.7 * (780.0 - wavelength) / (780.0 - 700.0);
+	else if ((701.0 <= waveLength) && (waveLength <= 780.0))
+		factor = 0.3 + 0.7 * (780.0 - waveLength) / (780.0 - 700.0);
 	else
 		factor = 0.0;
 

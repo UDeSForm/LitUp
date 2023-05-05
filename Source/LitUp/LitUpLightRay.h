@@ -43,6 +43,8 @@ public:
 	float currentRefractionIndex = 1.f;
 	float wavelength = 780.f;
 
+	inline FVector calculateColorFromWaveLength(float waveLength);
+
 private:
 	bool next = false;
 	UMaterialInstanceDynamic* dynamicLaserMaterialInstanceDynamic;
@@ -50,6 +52,4 @@ private:
 	inline void goNext(bool goNext);
 	inline void Reflection(const FVector& Direction, const FVector& SurfaceNormal, const FVector& Location);
 	inline void Refraction(const FVector& Direction, const FVector& SurfaceNormal, const FVector& Location, const float& CurrentRefractionIndex, const float& ObjectRefractionIndex);
-	inline FVector calculateColorFromWaveLength();
-
 };
