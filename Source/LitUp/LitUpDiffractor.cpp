@@ -153,11 +153,11 @@ inline void ALitUpDiffractor::CalculerPatronDiffraction()
 					
 				if (m >= 0 && m < 1)
 				{
-					pixelsPatron[x + y * size] = FColor(colorPatron.X, colorPatron.Y, colorPatron.Z, pixelsPatron[x + y * size].A + ((cos(PI * m) / 2 + 0.5) / 2));
+					pixelsPatron[x + y * size] = FColor(colorPatron.X, colorPatron.Y, colorPatron.Z, pixelsPatron[x + y * size].A + (1 - ((cos(PI * m) / 2 + 0.5) / 2)) * 255);
 				}
 				else
 				{
-					pixelsPatron[x + y * size] = FColor(colorPatron.X, colorPatron.Y, colorPatron.Z, pixelsPatron[x + y * size].A + ((cos(2 * PI * m + PI) / 2 + 0.5) * (1 / abs(m))) / 2);
+					pixelsPatron[x + y * size] = FColor(colorPatron.X, colorPatron.Y, colorPatron.Z, pixelsPatron[x + y * size].A + (1 - (((cos(2 * PI * m + PI) / 2 + 0.5) * (1 / abs(m))) / 2)) * 255);
 				}
 			}
 		}
@@ -172,11 +172,11 @@ inline void ALitUpDiffractor::CalculerPatronDiffraction()
 				float m = (((hauteurFente * pixelFente) / 1000000000.f) * dPointPatron) / (hypotenuse * WaveLength / 1000000000.f);
 				if (m >= 0 && m < 1)
 				{
-					pixelsPatron[x + y * size] = FColor(colorPatron.X, colorPatron.Y, colorPatron.Z, pixelsPatron[x + y * size].A + ((cos(PI * m) / 2 + 0.5) / 2));
+					pixelsPatron[x + y * size] = FColor(colorPatron.X, colorPatron.Y, colorPatron.Z, pixelsPatron[x + y * size].A + (1 - ((cos(PI * m) / 2 + 0.5) / 2)) * 255);
 				}
 				else
 				{
-					pixelsPatron[x + y * size] = FColor(colorPatron.X, colorPatron.Y, colorPatron.Z, pixelsPatron[x + y * size].A + ((cos(2 * PI * m + PI) / 2 + 0.5) * (1 / abs(m))) / 2);
+					pixelsPatron[x + y * size] = FColor(colorPatron.X, colorPatron.Y, colorPatron.Z, pixelsPatron[x + y * size].A + (1 - (((cos(2 * PI * m + PI) / 2 + 0.5) * (1 / abs(m))) / 2)) * 255);
 				}
 			}
 		}
