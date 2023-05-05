@@ -33,7 +33,6 @@ void ALitUpDiffractor::BeginPlay()
 	{
 		decal->GetDecal()->DecalSize = FVector(50.0f, 50.0f, 50.0f);
 		decal->SetActorHiddenInGame(true);
-
 		decal->SetDecalMaterial(diffractionMaterial);
 	}
 	else
@@ -55,8 +54,8 @@ void ALitUpDiffractor::BeginPlay()
 void ALitUpDiffractor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	if (decal) decal->SetActorHiddenInGame(!tick);
-	tick = false;
+	if (decal) decal->SetActorHiddenInGame(!showDecal);
+	showDecal = false;
 }
 
 // This ultimately is what controls whether or not it can even tick at all in the editor view port. 
@@ -91,8 +90,8 @@ inline void ALitUpDiffractor::CalculerPatronDiffraction()
 
 		decal->SetActorTransform(FTransform(FRotator(0, 0, 90) + ForwardVector.Rotation(), (OutHit.Location - Start) / 2.f + Start + ForwardVector * 0.01, FVector(OutHit.Distance / 100.f, OutHit.Distance / 200.f, OutHit.Distance / 200.f)));
 
-		double r = OutHit.Distance / 100.f;
-		double taillePixelM = (r) / (float)size;
+		double r = OutHit.Distance / (double)100;
+		double taillePixelM = r / (double)size;
 		int fsX = Fente->GetSizeX();
 		int fsY = Fente->GetSizeY();
 		int nX = fsX;
@@ -126,28 +125,29 @@ inline void ALitUpDiffractor::CalculerPatronDiffraction()
 		double q = (fY - nY + 1);
 		int ccx = ((p / 2 + nX) * (size/fsX));
 		int ccy = ((q / 2 + nY) * (size/fsY));
-		double k = (2.f * PI) / (WaveLength / 1000000000.f);
+		double k = ((double)2 * PI) / (WaveLength / (double)1000000000);
 
 		double Apq = p * q;
-		p *= pixelFente;
-		q *= pixelFente;
+		p *= pixelFente / (double)1000000000;
+		q *= pixelFente / (double)1000000000;
+		double r2 = 2 * r;
+		double kpoverr2 = (k * p) / r2;
+		double kqoverr2 = (k * q) / r2;
 
 		TArray<double> xwave;
 		xwave.SetNumZeroed(size);
 		for (int x = -ccx; x < size - ccx; x++)
 		{
-			double xwavet = sin((k * p * x) / (2.f * r));
-			double xwaveb = (k * p * x) / (2.f * r);
-			xwave[x + ccx] = xwavet / xwaveb;
+			double kpxoverr2 = kpoverr2 * x;
+			xwave[x + ccx] = sin((float)kpxoverr2) / kpxoverr2;
 		}
 
 		TArray<double> ywave;
 		ywave.SetNumZeroed(size);
 		for (int y = -ccy; y < size - ccy; y++)
 		{
-			double ywavet = sin((k * q * y) / (2.f * r));
-			double ywaveb = (k * q * y) / (2.f * r);
-			ywave[y + ccy] = ywavet / ywaveb;
+			double kqyoverr2 = kqoverr2 * y;
+			ywave[y + ccy] = sin((float)kqyoverr2) / kqyoverr2;
 		}
 
 		FVector colorPatron = calculateColorFromWaveLength();
@@ -156,8 +156,7 @@ inline void ALitUpDiffractor::CalculerPatronDiffraction()
 		{
 			for (int x = 0; x < size; x++)
 			{
-				double waves = xwave[x] * ywave[y];
-				double sqrtresult = Apq * waves;
+				double sqrtresult = Apq * xwave[x] * ywave[y];
 				double result = sqrtresult * sqrtresult;
 				pixelsPatron[x + y * size] = FColor(colorPatron.X, colorPatron.Y, colorPatron.Z, result * 128);
 			}
@@ -173,7 +172,7 @@ void ALitUpDiffractor::exec(float rayWaveLength)
 {
 	if (rayWaveLength == WaveLength)
 	{
-		tick = true;
+		showDecal = true;
 	}
 }
 

@@ -29,6 +29,12 @@ class LITUP_API ALitUpDiffractor : public AActor
 	UPROPERTY(EditAnywhere)
 		float WaveLength = 780.f;
 
+	UPROPERTY(EditAnywhere)
+		double pixelFente = 6.25;
+
+	UPROPERTY(EditAnywhere)
+		int size = 8192;
+
 	/** Allows Tick To happen in the editor viewport*/
 	virtual bool ShouldTickIfViewportsOnly() const override;
 public:
@@ -45,10 +51,8 @@ public:
 	void CalculerPatronDiffraction();
 	void exec(float rayWaveLength);
 private:
-	bool tick = false;
+	bool showDecal = false;
 	TArray<FColor> pixelsPatron;
-	double pixelFente = 0.0000000118f;
-	int size = 8192;
 	UTexture2D* patronDiffraction;
 	inline FVector calculateColorFromWaveLength();
 	ADecalActor* decal;
