@@ -45,8 +45,9 @@ public:
 private:
 	bool currentTick = false;
 	bool previousTick;
-	float pixels[1024][1024] = {0};
+	TArray<FColor> pixelsPatron;
 	float pixelFente = 1180.f;
+	int size = 1024;
 	UTexture2D* patronDiffraction;
 	inline FVector calculateColorFromWaveLength();
 };

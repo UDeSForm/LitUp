@@ -68,7 +68,7 @@ inline void ALitUpDiffractor::CalculerPatronDiffraction()
 	if (GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_WorldStatic, CollisionParams))
 	{
 		float distanceMurM = OutHit.Distance / 100.f;
-		float taillePixelM = (distanceMurM) / 1024.f;
+		float taillePixelM = (distanceMurM) / (float)size;
 		int sizeX = Fente->GetSizeX();
 		int sizeY = Fente->GetSizeY();
 		int nearestX = sizeX;
@@ -79,9 +79,9 @@ inline void ALitUpDiffractor::CalculerPatronDiffraction()
 		FTexture2DMipMap MyMipMap = Fente->GetPlatformData()->Mips[0];
 		FByteBulkData RawImageData = MyMipMap.BulkData;
 
-		TArray<FColor> pixelsPatron;
 		FVector colorPatron = calculateColorFromWaveLength();
-		pixelsPatron.SetNumZeroed(1024 * 1024);
+		
+		pixelsPatron.SetNumZeroed(size * size);
 
 		FColor* FormatedImageData = static_cast<FColor*>(RawImageData.Lock(LOCK_READ_ONLY));
 		for (int i = 0; i < sizeX; i++)
@@ -102,17 +102,17 @@ inline void ALitUpDiffractor::CalculerPatronDiffraction()
 		}
 		int largeurFente = furthestX - nearestX + 1;
 		int hauteurFente = furthestY - nearestY + 1;
-		int coorX = ((largeurFente / 2.0 + nearestX) * 64);
-		int coorY = ((hauteurFente / 2.0 + nearestY) * 64);
+		int coorX = ((largeurFente / 2.0 + nearestX) * (size/sizeX));
+		int coorY = ((hauteurFente / 2.0 + nearestY) * (size/sizeY));
 		GEngine->AddOnScreenDebugMessage(-17, 10.f, FColor::Yellow, FString::Printf(TEXT("Milieu X: %i"), coorX));
 		GEngine->AddOnScreenDebugMessage(-18, 10.f, FColor::Yellow, FString::Printf(TEXT("Milieu Y: %i"), coorY));
 		int testX = 560;
 		int testY = 560;
 		GEngine->AddOnScreenDebugMessage(-19, 10.f, FColor::Yellow, FString::Printf(TEXT("test X : %i"), testX));
 		GEngine->AddOnScreenDebugMessage(-20, 10.f, FColor::Yellow, FString::Printf(TEXT("test Y: %i"), testY));
-		for (int x = 0; x < 1024; x++)
+		for (int x = 0; x < size; x++)
 		{
-			for (int y = coorY - (32 * (hauteurFente)); y < coorY + (32 * (hauteurFente)); y++)
+			for (int y = coorY - ((size/(2*sizeY)) * (hauteurFente)); y < coorY + ((size / (2 * sizeY)) * (hauteurFente)); y++)
 			{
 				float dPointPatron = sqrt((x - coorX) * taillePixelM * (x - coorX) * taillePixelM + (y - coorY) * taillePixelM * (y - coorY) * taillePixelM);
 				
@@ -129,18 +129,18 @@ inline void ALitUpDiffractor::CalculerPatronDiffraction()
 					
 				if (m >= 0 && m < 1)
 				{
-					pixels[x][y] += ((cos(PI * m) / 2 + 0.5)/2);
+					pixelsPatron[x + y * size] = FColor(colorPatron.X, colorPatron.Y, colorPatron.Z, pixelsPatron[x + y * size].A + ((cos(PI * m) / 2 + 0.5) / 2));
 				}
 				else
 				{
-					pixels[x][y] += (((cos(2 * PI * m + PI) / 2 + 0.5) * (1 / abs(m)))/2);
+					pixelsPatron[x + y * size] = FColor(colorPatron.X, colorPatron.Y, colorPatron.Z, pixelsPatron[x + y * size].A + ((cos(2 * PI * m + PI) / 2 + 0.5) * (1 / abs(m))) / 2);
 				}
 			}
 		}
 
-		for (int x = coorX - (32 * (furthestX - nearestX)); x < coorX + (32 * (furthestX - nearestX)); x++)
+		for (int x = coorX - ((size / (2 * sizeX)) * (furthestX - nearestX)); x < coorX + ((size / (2 * sizeX)) * (furthestX - nearestX)); x++)
 		{
-			for (int y = 0; y < 1024; y++)
+			for (int y = 0; y < size; y++)
 			{
 				float dPointPatron = sqrt((x - coorX) * taillePixelM * (x - coorX) * taillePixelM + (y - coorY) * taillePixelM * (y - coorY) * taillePixelM);
 				float hypotenuse = sqrt(distanceMurM * distanceMurM + dPointPatron * dPointPatron);
@@ -148,21 +148,21 @@ inline void ALitUpDiffractor::CalculerPatronDiffraction()
 				float m = (((hauteurFente * pixelFente)/1000000000.f) * dPointPatron) / (hypotenuse * WaveLength / 1000000000.f);
 				if (m >= 0 && m < 1)
 				{
-					pixels[x][y] += ((cos(PI * m) / 2 + 0.5)/2);
+					pixelsPatron[x + y * size] = FColor(colorPatron.X, colorPatron.Y, colorPatron.Z, pixelsPatron[x + y * size].A + ((cos(PI * m) / 2 + 0.5) / 2));
 				}
 				else
 				{
-					pixels[x][y] += (((cos(2 * PI * m + PI) / 2 + 0.5) * (1 / abs(m)))/2);
+					pixelsPatron[x + y * size] = FColor(colorPatron.X, colorPatron.Y, colorPatron.Z, pixelsPatron[x + y * size].A + ((cos(2 * PI * m + PI) / 2 + 0.5) * (1 / abs(m))) / 2);
 				}
 			}
 		}
-		GEngine->AddOnScreenDebugMessage(-24, 10.f, FColor::Yellow, FString::Printf(TEXT("%f"), pixels[testX][testY]));
+		//GEngine->AddOnScreenDebugMessage(-24, 10.f, FColor::Yellow, FString::Printf(TEXT("%f"), pixelsAlpha[testX + testY * size]));
 		RawImageData.Unlock();
 
 		
 
 		FCreateTexture2DParameters params;	
-		patronDiffraction = FImageUtils::CreateTexture2D(1024, 1024, pixelsPatron, Diffractor, "Patron", EObjectFlags::RF_Transient, params);
+		patronDiffraction = FImageUtils::CreateTexture2D(size, size, pixelsPatron, Diffractor, "Patron", EObjectFlags::RF_Transient, params);
 	}
 }
 
@@ -231,7 +231,7 @@ inline FVector ALitUpDiffractor::calculateColorFromWaveLength()
 		factor = 0.0;
 
 	const double gamma = 0.8;
-	const double intensity_max = 100.0;
+	const double intensity_max = 255;
 
 	FVector result = { intensity_max * pow(red * factor, gamma), intensity_max * pow(green * factor, gamma), intensity_max * pow(blue * factor, gamma) };
 
