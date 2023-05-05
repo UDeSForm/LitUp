@@ -30,7 +30,7 @@ class LITUP_API ALitUpDiffractor : public AActor
 		float WaveLength = 780.f;
 
 	UPROPERTY(EditAnywhere)
-		double pixelFente = 6.25;
+		double pixelFente = 25;
 
 	UPROPERTY(EditAnywhere)
 		int size = 8192;

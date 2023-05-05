@@ -88,7 +88,7 @@ inline void ALitUpDiffractor::CalculerPatronDiffraction()
 
 		Start += ForwardVector * 100.f;
 
-		decal->SetActorTransform(FTransform(FRotator(0, 0, 90) + ForwardVector.Rotation(), (OutHit.Location - Start) / 2.f + Start + ForwardVector * 0.01, FVector(OutHit.Distance / 100.f, OutHit.Distance / 200.f, OutHit.Distance / 200.f)));
+		decal->SetActorTransform(FTransform(FRotator(0, 0, 90) + ForwardVector.Rotation(), (OutHit.Location - Start) / 2.f + Start + ForwardVector * 0.01, FVector(OutHit.Distance / 100.f, OutHit.Distance / 100.f, OutHit.Distance / 100.f)));
 
 		double r = OutHit.Distance / (double)100;
 		double taillePixelM = r / (double)size;
