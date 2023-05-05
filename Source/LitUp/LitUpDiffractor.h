@@ -4,8 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "Engine/TextureRenderTarget2D.h"
 #include "Engine/Texture2D.h"
+#include "ImageUtils.h"
 #include "LitUpDiffractor.generated.h"
 
 UCLASS()
@@ -41,9 +41,11 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 	void CalculerPatronDiffraction();
-	void exec();
+	void exec(float rayWaveLength);
 private:
+	bool currentTick = false;
+	bool previousTick;
 	float pixels[1024][1024] = {0};
 	float pixelFente = 1180.f;
-	//UTextureRenderTarget2D patronDiffraction;
+	UTexture2D* patronDiffraction;
 };

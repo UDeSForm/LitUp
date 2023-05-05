@@ -43,7 +43,7 @@ public:
 	float currentRefractionIndex = 1.f;
 	float wavelength = 780.f;
 
-	inline FVector calculateColorFromWaveLength(float waveLength);
+	inline static FVector calculateColorFromWaveLength(float waveLength);
 
 private:
 	bool next = false;

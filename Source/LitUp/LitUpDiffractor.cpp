@@ -32,7 +32,12 @@ void ALitUpDiffractor::BeginPlay()
 void ALitUpDiffractor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	previousTick = currentTick;
+	if (previousTick)
+	{
+		//show decal
+	}
+	currentTick = false;
 }
 
 // This ultimately is what controls whether or not it can even tick at all in the editor view port. 
@@ -73,6 +78,11 @@ inline void ALitUpDiffractor::CalculerPatronDiffraction()
 
 		FTexture2DMipMap MyMipMap = Fente->GetPlatformData()->Mips[0];
 		FByteBulkData RawImageData = MyMipMap.BulkData;
+
+		TArray<FColor> pixelsPatron;
+		FVector colorPatron = calculateColorFromWaveLength(WaveLength);
+		pixelsPatron.SetNumZeroed(1024 * 1024);
+
 		FColor* FormatedImageData = static_cast<FColor*>(RawImageData.Lock(LOCK_READ_ONLY));
 		for (int i = 0; i < sizeX; i++)
 		{
@@ -119,11 +129,11 @@ inline void ALitUpDiffractor::CalculerPatronDiffraction()
 					
 				if (m >= 0 && m < 1)
 				{
-					//pixels[x][y] += (cos(PI * m) / 2 + 0.5);
+					pixels[x][y] += ((cos(PI * m) / 2 + 0.5)/2);
 				}
 				else
 				{
-					//pixels[x][y] += ((cos(2 * PI * m + PI) / 2 + 0.5) * (1 / abs(m)));
+					pixels[x][y] += (((cos(2 * PI * m + PI) / 2 + 0.5) * (1 / abs(m)))/2);
 				}
 			}
 		}
@@ -138,24 +148,29 @@ inline void ALitUpDiffractor::CalculerPatronDiffraction()
 				float m = (((hauteurFente * pixelFente)/1000000000.f) * dPointPatron) / (hypotenuse * WaveLength / 1000000000.f);
 				if (m >= 0 && m < 1)
 				{
-					pixels[x][y] += (cos(PI * m) / 2 + 0.5);
+					pixels[x][y] += ((cos(PI * m) / 2 + 0.5)/2);
 				}
 				else
 				{
-					pixels[x][y] += ((cos(2 * PI * m + PI) / 2 + 0.5) * (1 / abs(m)));
+					pixels[x][y] += (((cos(2 * PI * m + PI) / 2 + 0.5) * (1 / abs(m)))/2);
 				}
 			}
 		}
 		GEngine->AddOnScreenDebugMessage(-24, 10.f, FColor::Yellow, FString::Printf(TEXT("%f"), pixels[testX][testY]));
 		RawImageData.Unlock();
-	}
 
-	
-	
+		
+
+		FCreateTexture2DParameters params;	
+		patronDiffraction = FImageUtils::CreateTexture2D(1024, 1024, pixelsPatron, Diffractor, "Patron", EObjectFlags::RF_Transient, params);
+	}
 }
 
-void ALitUpDiffractor::exec()
+void ALitUpDiffractor::exec(float rayWaveLength)
 {
-	int sizeX = Fente->GetSizeX();
-	
+
+	if (rayWaveLength == WaveLength)
+	{
+		currentTick = true;
+	}
 }

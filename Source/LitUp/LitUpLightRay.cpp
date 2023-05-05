@@ -117,7 +117,7 @@ void ALitUpLightRay::Tick(float DeltaTime)
 		nextLightRay->maxRays = maxRays - 1;
 	}
 
-	dynamicLaserMaterialInstanceDynamic->SetVectorParameterValue(FName("LaserColor"), calculateColorFromWaveLength());
+	dynamicLaserMaterialInstanceDynamic->SetVectorParameterValue(FName("LaserColor"), calculateColorFromWaveLength(waveLength));
 }
 
 // This ultimately is what controls whether or not it can even tick at all in the editor view port. 
@@ -231,7 +231,7 @@ inline void ALitUpLightRay::Refraction(const FVector& Direction, const FVector& 
 	}
 }
 
-inline FVector ALitUpLightRay::calculateColorFromWaveLength(float waveLength)
+inline static FVector ALitUpLightRay::calculateColorFromWaveLength(float waveLength)
 {
 	// Credits: Dan Bruton http://www.physics.sfasu.edu/astro/color.html
 	double red = 0.0;
