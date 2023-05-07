@@ -198,15 +198,18 @@ inline void ALitUpLightRay::Reflection(const FVector& Direction, const FVector& 
 
 inline void ALitUpLightRay::Refraction(const FVector& Direction, const FVector& SurfaceNormal, const FVector& Location, const float& CurrentRefractionIndex, const float& ObjectRefractionIndex)
 {
+	// Param Direction: Vecteur incident
+	// Param SurfaceNormal: Vecteur de la normale de la surface frappée
+	// Param Location: Point d'impact
 	double n1;
 	double n2;
 
-	if (CurrentRefractionIndex < ObjectRefractionIndex)
+	if (CurrentRefractionIndex < ObjectRefractionIndex) // On entre dans un objet
 	{
 		n1 = CurrentRefractionIndex;
 		n2 = ObjectRefractionIndex;
 	}
-	else
+	else // On sort d'un objet
 	{
 		n1 = ObjectRefractionIndex;
 		n2 = 1;
@@ -218,16 +221,14 @@ inline void ALitUpLightRay::Refraction(const FVector& Direction, const FVector& 
 	if (sinRefractedSquared > 1.0)
 	{
 		// RTI applicable ici
-		//GEngine->AddOnScreenDebugMessage(-14, 1.f, FColor::Yellow, FString::Printf(TEXT("RTI")));
 		Reflection(Direction, SurfaceNormal, Location);
 	}
 	else
 	{
 		double cosRefracted = FMath::Sqrt(1.0 - sinRefractedSquared);
-		//GEngine->AddOnScreenDebugMessage(-14, 1.f, FColor::Yellow, FString::Printf(TEXT("Angle refracte = %f deg"), FMath::RadiansToDegrees(FMath::Acos(cosRefracted)))); // Bon angle
-		FVector refraction = n * Direction + (n * cosIncident - cosRefracted) * SurfaceNormal;
+		FVector refraction = n * Direction + (n * cosIncident - cosRefracted) * SurfaceNormal; // Informations sur le vecteur réfracté
 
-		nextLightRay->SetActorTransform(FTransform(refraction.Rotation(), Location + (refraction * 0.0001)));
+		nextLightRay->SetActorTransform(FTransform(refraction.Rotation(), Location + (refraction * 0.0001))); // Prochain rayon
 		nextLightRay->currentRefractionIndex = n2;
 	}
 }
