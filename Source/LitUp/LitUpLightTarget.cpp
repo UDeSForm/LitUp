@@ -27,6 +27,19 @@ void ALitUpLightTarget::BeginPlay()
 void ALitUpLightTarget::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	if (isHit && lastTime == 0) lastTime = FPlatformTime::Seconds();
+	
+	if (!isHit) lastTime = 0;
+
+	if (isHit && FPlatformTime::Seconds() - lastTime > 5)
+	{
+		FOutputDeviceNull outputNull;
+		const FString GoToNextLevelCommand = FString::Printf(TEXT("GoToNextLevel"));
+		this->CallFunctionByNameWithArguments(*GoToNextLevelCommand, outputNull, NULL, true);
+	}
+
+	isHit = false;
 }
 
 // This ultimately is what controls whether or not it can even tick at all in the editor view port. 
@@ -47,12 +60,7 @@ void ALitUpLightTarget::exec(float &waveLength)
 {
 	if (!UseWaveLength || (UseWaveLength && waveLength == WaveLength))
 	{
-		if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, TEXT("Hit!"));
-
-		FOutputDeviceNull outputNull;
-		const FString GoToNextLevelCommand = FString::Printf(TEXT("GoToNextLevel"));
-		this->CallFunctionByNameWithArguments(*GoToNextLevelCommand, outputNull, NULL, true);
+		//if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, TEXT("Hit!"));
+		isHit = true;
 	}
-
-	return;
 }

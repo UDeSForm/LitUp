@@ -42,4 +42,8 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "BlueprintClass")
 		AActor* bpActor;
+
+private:
+	bool isHit;
+	double lastTime = 0;
 };

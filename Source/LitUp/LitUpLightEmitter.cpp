@@ -12,7 +12,7 @@ ALitUpLightEmitter::ALitUpLightEmitter()
 	PrimaryActorTick.bCanEverTick = true;
 
 	Emitter = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("LightEmitter"));
-	static ConstructorHelpers::FObjectFinder<UStaticMesh>CubeMeshAsset(TEXT("StaticMesh'/Engine/BasicShapes/Cube.Cube'"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh>CubeMeshAsset(TEXT("StaticMesh'/Game/CustomActors/Intermediates/Emitter_Mesh.Emitter_Mesh'"));
 	Emitter->SetStaticMesh(CubeMeshAsset.Object);
 	SetRootComponent(Emitter);
 }
