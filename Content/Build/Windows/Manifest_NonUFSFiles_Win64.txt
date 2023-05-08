@@ -1,6 +1,9 @@
+Engine/Binaries/Win64/CrashReportClient.exe	2023-04-27T03:59:11.810Z
+Engine/Binaries/Win64/tbb.dll	2023-04-27T03:59:20.461Z
+Engine/Binaries/Win64/tbb.pdb	2023-04-27T03:59:20.462Z
 LitUp/Binaries/Win64/D3D12/D3D12Core.dll	2023-04-27T03:59:10.236Z
 LitUp/Binaries/Win64/D3D12/d3d12SDKLayers.dll	2023-04-27T03:59:10.248Z
-LitUp/Binaries/Win64/LitUp.exe	2023-05-07T21:57:48.000Z
+LitUp/Binaries/Win64/LitUp.exe	2023-05-08T02:06:58.450Z
 LitUp/Binaries/Win64/OpenImageDenoise.dll	2023-04-27T04:03:27.380Z
 LitUp/Binaries/Win64/boost_atomic-vc142-mt-x64-1_70.dll	2023-04-27T04:03:26.003Z
 LitUp/Binaries/Win64/boost_chrono-vc142-mt-x64-1_70.dll	2023-04-27T04:03:26.003Z
@@ -21,4 +24,4 @@ Engine/Binaries/ThirdParty/Vorbis/Win64/VS2015/libvorbis_64.dll	2023-04-27T03:59
 Engine/Binaries/ThirdParty/Vorbis/Win64/VS2015/libvorbisfile_64.dll	2023-04-27T03:59:10.229Z
 Engine/Binaries/ThirdParty/Windows/WinPixEventRuntime/x64/WinPixEventRuntime.dll	2023-04-27T03:59:10.395Z
 Engine/Binaries/ThirdParty/Windows/XAudio2_9/x64/xaudio2_9redist.dll	2023-04-27T03:59:10.397Z
-LitUp.exe	2023-05-07T21:57:56.677Z
+LitUp.exe	2023-05-08T02:07:07.148Z

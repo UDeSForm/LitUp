@@ -15,11 +15,14 @@ ALitUpDiffractor::ALitUpDiffractor()
 	Diffractor = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Diffractor"));
 	Diffractor->SetupAttachment(Origin);
 
-	static ConstructorHelpers::FObjectFinder<UStaticMesh>CubeMeshAsset(TEXT("StaticMesh'/Engine/BasicShapes/Cube.Cube'"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh>CubeMeshAsset(TEXT("StaticMesh'/Game/CustomActors/Intermediates/diffractor.diffractor'"));
 	Diffractor->SetStaticMesh(CubeMeshAsset.Object);
 
 	static ConstructorHelpers::FObjectFinder<UMaterial>dMaterial(TEXT("Material'/Game/Materials/M_Diffraction.M_Diffraction'"));
 	diffractionMaterial = dMaterial.Object;
+
+	static ConstructorHelpers::FObjectFinder<UMaterial>diffractorMaterial(TEXT("Material'/Game/CustomActors/Intermediates/Material.Material'"));
+	Diffractor->SetMaterial(0, diffractorMaterial.Object);
 }
 
 // Called when the game starts or when spawned
@@ -27,8 +30,10 @@ void ALitUpDiffractor::BeginPlay()
 {
 	Super::BeginPlay();
 	Diffractor->SetStaticMesh(DiffractorMeshAsset);
-
-	decal = GetWorld()->SpawnActor<ADecalActor>(Origin->GetComponentLocation(), FRotator(0.f,0.f,0.f));
+	
+	FActorSpawnParameters sp;
+	sp.ObjectFlags = RF_Transient;
+	decal = GetWorld()->SpawnActor<ADecalActor>(Origin->GetComponentLocation(), FRotator(0.f,0.f,0.f), sp);
 	if (decal)
 	{
 		decal->GetDecal()->DecalSize = FVector(50.0f, 50.0f, 50.0f);
@@ -90,53 +95,24 @@ inline void ALitUpDiffractor::CalculerPatronDiffraction()
 
 		decal->SetActorTransform(FTransform(FRotator(0, 0, 90) + ForwardVector.Rotation(), (OutHit.Location - Start) / 2.f + Start + ForwardVector * 0.01, FVector(OutHit.Distance / 100.f, OutHit.Distance / 100.f, OutHit.Distance / 100.f)));
 
-		double r = OutHit.Distance / (double)100;
-		double taillePixelM = r / (double)size;
-		int fsX = Fente->GetSizeX();
-		int fsY = Fente->GetSizeY();
-		int nX = fsX;
-		int nY = fsY;
-		int fX = 0;
-		int fY = 0;
-
-		FTexture2DMipMap MyMipMap = Fente->GetPlatformData()->Mips[0];
-		FByteBulkData RawImageData = MyMipMap.BulkData;
-		FColor* FormatedImageData = static_cast<FColor*>(RawImageData.Lock(LOCK_READ_ONLY));
-		for (int i = 0; i < fsX; i++)
-		{
-			for (int j = 0; j < fsY; j++)
-			{
-				FColor PixelColor = FormatedImageData[j * fsX + i];
-				if (PixelColor.R > 0)
-				{
-					if (i < nX) nX = i;
-					if (j < nY) nY = j;
-
-					if (i > fX) fX = i;
-					if (j > fY) fY = j;	
-				}
-			}
-		}
-		RawImageData.Unlock();
-
 		// Credits: Petr Klapetek http://gsvit.net/tutorial/a_grating.php
-
-		double p = (fX - nX + 1);
-		double q = (fY - nY + 1);
-		int ccx = ((p / 2 + nX) * (size/fsX));
-		int ccy = ((q / 2 + nY) * (size/fsY));
+		
+		double r2 = OutHit.Distance / (double)50;
+		double p = largeurFente;
+		double q = hauteurFente;
+		int ccx = size / 2;
+		int ccy = size / 2;
 		double k = ((double)2 * PI) / (WaveLength / (double)1000000000);
 
-		double Apq = p * q;
-		p *= pixelFente / (double)1000000000;
-		q *= pixelFente / (double)1000000000;
-		double r2 = 2 * r;
+		double Apq = (0.01 / r2) * p * q;
+		p /= (double)1000000000;
+		q /= (double)1000000000;
 		double kpoverr2 = (k * p) / r2;
 		double kqoverr2 = (k * q) / r2;
 
 		TArray<double> xwave;
 		xwave.SetNumZeroed(size);
-		for (int x = -ccx; x < size - ccx; x++)
+		for (int x = -ccx; x < ccx; x++)
 		{
 			double kpxoverr2 = kpoverr2 * x;
 			xwave[x + ccx] = sin((float)kpxoverr2) / kpxoverr2;
@@ -144,7 +120,7 @@ inline void ALitUpDiffractor::CalculerPatronDiffraction()
 
 		TArray<double> ywave;
 		ywave.SetNumZeroed(size);
-		for (int y = -ccy; y < size - ccy; y++)
+		for (int y = -ccy; y < ccy; y++)
 		{
 			double kqyoverr2 = kqoverr2 * y;
 			ywave[y + ccy] = sin((float)kqyoverr2) / kqyoverr2;
@@ -162,9 +138,11 @@ inline void ALitUpDiffractor::CalculerPatronDiffraction()
 			}
 		}
 
-		FCreateTexture2DParameters params;
-		params.bUseAlpha = true;
-		patronDiffraction = FImageUtils::CreateTexture2D(size, size, pixelsPatron, Diffractor, "Patron", EObjectFlags::RF_Transient, params);
+		patronDiffraction = UTexture2D::CreateTransient(size, size, PF_B8G8R8A8);
+		void* TextureData = patronDiffraction->PlatformData->Mips[0].BulkData.Lock(LOCK_READ_WRITE);
+		FMemory::Memcpy(TextureData, pixelsPatron.GetData(), 4 * size * size);
+		patronDiffraction->PlatformData->Mips[0].BulkData.Unlock();
+		patronDiffraction->UpdateResource();
 	}
 }
 

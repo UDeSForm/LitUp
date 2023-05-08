@@ -24,16 +24,19 @@ class LITUP_API ALitUpDiffractor : public AActor
 		UStaticMesh* DiffractorMeshAsset;
 
 	UPROPERTY(EditAnywhere)
-		UTexture2D* Fente;
+		double WaveLength = 780;
 
 	UPROPERTY(EditAnywhere)
-		float WaveLength = 780.f;
+		double largeurFente = 100;
 
 	UPROPERTY(EditAnywhere)
-		double pixelFente = 25;
+		double hauteurFente = 100;
 
 	UPROPERTY(EditAnywhere)
 		int size = 8192;
+
+	UPROPERTY(VisibleDefaultsOnly)
+		UTexture2D* patronDiffraction;
 
 	/** Allows Tick To happen in the editor viewport*/
 	virtual bool ShouldTickIfViewportsOnly() const override;
@@ -50,10 +53,10 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	void CalculerPatronDiffraction();
 	void exec(float rayWaveLength);
+
 private:
 	bool showDecal = false;
 	TArray<FColor> pixelsPatron;
-	UTexture2D* patronDiffraction;
 	inline FVector calculateColorFromWaveLength();
 	ADecalActor* decal;
 	UMaterial* diffractionMaterial;
