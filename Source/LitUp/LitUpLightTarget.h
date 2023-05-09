@@ -15,13 +15,13 @@ class LITUP_API ALitUpLightTarget : public AActor
 		UStaticMeshComponent* Target;
 
 	UPROPERTY(EditAnywhere)
-		UStaticMesh* TargetMeshAsset;
+		UStaticMesh* TargetMeshAsset; //Mesh de la cible
 
 	UPROPERTY(EditAnywhere)
-		bool UseWaveLength = false;
+		bool UseWaveLength = false; //Si on utilise la longeur d'onde comme restriction
 
 	UPROPERTY(EditAnywhere)
-		float WaveLength = 780.f;
+		float WaveLength = 780.f; //Longeur d'onde qui peut affecter la cible
 
 	/** Allows Tick To happen in the editor viewport*/
 	virtual bool ShouldTickIfViewportsOnly() const override;
@@ -44,6 +44,6 @@ public:
 		AActor* bpActor;
 
 private:
-	bool isHit;
-	double lastTime = 0;
+	bool isHit; //Variable qui contient l'état de la cible
+	double lastTime = 0; //Temps lorsque la cible a commencé à être touchée
 };

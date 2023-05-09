@@ -15,7 +15,7 @@ class LITUP_API ALitUpMirror : public AActor
 		UStaticMeshComponent* Mirror;
 
 	UPROPERTY(EditAnywhere)
-		UStaticMesh* MirrorMeshAsset;
+		UStaticMesh* MirrorMeshAsset; //Mesh du mirroir
 		
 
 	/** Allows Tick To happen in the editor viewport*/

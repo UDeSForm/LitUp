@@ -11,6 +11,7 @@ ALitUpLightEmitter::ALitUpLightEmitter()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	//Créer et appliquer un mesh sur l'émetteur
 	Emitter = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("LightEmitter"));
 	static ConstructorHelpers::FObjectFinder<UStaticMesh>CubeMeshAsset(TEXT("StaticMesh'/Game/CustomActors/Intermediates/Emitter_Mesh.Emitter_Mesh'"));
 	Emitter->SetStaticMesh(CubeMeshAsset.Object);
@@ -21,8 +22,8 @@ ALitUpLightEmitter::ALitUpLightEmitter()
 void ALitUpLightEmitter::BeginPlay()
 {
 	Super::BeginPlay();
-	Emitter->SetStaticMesh(EmitterMeshAsset);
-	LightRay = nullptr;
+	Emitter->SetStaticMesh(EmitterMeshAsset); //Appliquer le mesh choisi sur l'actor
+	LightRay = nullptr; //Définir le prochain rayon comme étant null
 }
 
 // Called every frame
@@ -33,15 +34,16 @@ void ALitUpLightEmitter::Tick(float DeltaTime)
 	if (!LightRay)
 	{
 		FActorSpawnParameters sp;
-		sp.ObjectFlags = RF_Transient;
+		sp.ObjectFlags = RF_Transient; //Le rayon ne se fait pas sauvegarder
 		LightRay = GetWorld()->SpawnActor<ALitUpLightRay>(ALitUpLightRay::StaticClass(), sp);
-		LightRay->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform);
-		LightRay->SetActorRelativeTransform(FTransform(FRotator(0, 0, 0), FVector(0, 0, 0), FVector(1, 1, 1)));
+		LightRay->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform); //Attacher le nouveau rayon
+		LightRay->SetActorRelativeTransform(FTransform(FRotator(0, 0, 0), FVector(0, 0, 0), FVector(1, 1, 1))); //Définir la position du rayon dans l'émetteur
 
+		//Définir les informations du rayon émis
 		LightRay->maxRays = MaxRays;
 		LightRay->wavelength = WaveLength;
 	}
-	else
+	else //Mettre à jour les informations en temps réel
 	{
 		LightRay->maxRays = MaxRays;
 		LightRay->wavelength = WaveLength;

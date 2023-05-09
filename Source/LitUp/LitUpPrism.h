@@ -23,7 +23,7 @@ protected:
 	virtual void BeginPlay() override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		float RefractionIndex = 1.5f;
+		float RefractionIndex = 1.5f; //Index de réfraction du prisme
 
 public:	
 	// Called every frame

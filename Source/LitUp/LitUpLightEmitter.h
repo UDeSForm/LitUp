@@ -16,16 +16,16 @@ class LITUP_API ALitUpLightEmitter : public AActor
 		UStaticMeshComponent* Emitter;
 
 	UPROPERTY(EditAnywhere)
-		UStaticMesh* EmitterMeshAsset;
+		UStaticMesh* EmitterMeshAsset; //Mesh de l'émetteur
 
 	UPROPERTY(VisibleDefaultsOnly)
-		ALitUpLightRay* LightRay = nullptr;
+		ALitUpLightRay* LightRay = nullptr; //Pointeur du rayon généré par l'émetteur
 
 	UPROPERTY(EditAnywhere)
-		int MaxRays = 1000;
+		int MaxRays = 1000; //Nombre maximal de rayons générés par cet émetteur
 
 	UPROPERTY(EditAnywhere)
-		float WaveLength = 780.f;
+		float WaveLength = 780.f; //Longeur d'onde émise par l'émetteur
 
 	/** Allows Tick To happen in the editor viewport*/
 	virtual bool ShouldTickIfViewportsOnly() const override;
@@ -41,7 +41,4 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-
-private:
-	bool ray = false;
 };

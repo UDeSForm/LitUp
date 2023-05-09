@@ -9,10 +9,10 @@ ALitUpMirror::ALitUpMirror()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	//Créer le mirroir et définir son mesh et son matériau
 	Mirror = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mirror"));
 	static ConstructorHelpers::FObjectFinder<UStaticMesh>CubeMeshAsset(TEXT("StaticMesh'/Engine/BasicShapes/Cube.Cube'"));
 	static ConstructorHelpers::FObjectFinder<UMaterial>mirrorMaterial(TEXT("Material '/Game/CustomActors/Materials/M_Mirror'"));
-	
 	Mirror->SetMaterial(0, mirrorMaterial.Object);
 	Mirror->SetStaticMesh(CubeMeshAsset.Object);
 	SetRootComponent(Mirror);
@@ -22,7 +22,7 @@ ALitUpMirror::ALitUpMirror()
 void ALitUpMirror::BeginPlay()
 {
 	Super::BeginPlay();
-	Mirror->SetStaticMesh(MirrorMeshAsset);
+	Mirror->SetStaticMesh(MirrorMeshAsset);  //Appliquer le mesh choisi sur l'actor
 }
 
 // Called every frame

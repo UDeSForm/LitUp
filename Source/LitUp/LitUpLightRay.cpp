@@ -22,19 +22,24 @@ ALitUpLightRay::ALitUpLightRay()
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	//Créer un composant situé au début du rayon
 	Origin = CreateDefaultSubobject<USceneComponent>(TEXT("Origin"));
 	SetRootComponent(Origin);
 
+	//Créer et attacher le mesh du rayon à l'origine
 	LightRay = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("LightRay"));
 	LightRay->SetupAttachment(Origin);
 
+	//Définir le mesh utilisé par le rayon
 	static ConstructorHelpers::FObjectFinder<UStaticMesh>CylinderMeshAsset(TEXT("StaticMesh'/Engine/BasicShapes/Cylinder.Cylinder'"));
 	LightRay->SetStaticMesh(CylinderMeshAsset.Object);
 
+	//Définir le matériau utilisé par le rayon
 	static ConstructorHelpers::FObjectFinder<UMaterial>laserMaterial(TEXT("Material '/Game/Materials/M_Laser.M_Laser'"));
 	dynamicLaserMaterialInstanceDynamic = UMaterialInstanceDynamic::Create(laserMaterial.Object, LightRay);
 	LightRay->SetMaterial(0, dynamicLaserMaterialInstanceDynamic);
 
+	//Définir des paramètres du rayon
 	LightRay->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	LightRay->SetRelativeTransform(FTransform(FRotator(90, 0, 0), FVector(length / 2.f, 0, 0), FVector(0.05, 0.05, length / 100.f)));
 	LightRay->CastShadow = false;
@@ -53,71 +58,74 @@ void ALitUpLightRay::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	//Faire un raycast à partir de l'origine de longeur length
 	FVector Start = Origin->GetComponentLocation();
 	FVector ForwardVector = Origin->GetForwardVector();
 	FHitResult OutHit;
 	FVector End = ((ForwardVector * length) + Start);
 
 	FCollisionQueryParams CollisionParams;
-	CollisionParams.bTraceComplex = true;
+	CollisionParams.bTraceComplex = true; //On veut faire des raycast qui obtiennent des résultats même s'ils commencent à l'intérieur d'un objet
 
 	//DrawDebugLine(GetWorld(), Start, End, FColor::Green, false, 0.04, 0, 10);
 
 	if (GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_WorldStatic, CollisionParams))
 	{
+		//Définir la position du cylindre comme étant le millieu du vecteur partant de l'origine jusqu'au point touché et changer sa taille afin qu'il parte de l'origine jusqu'au point touché
 		LightRay->SetWorldTransform(FTransform(FRotator(90, 0, 0) + ForwardVector.Rotation(), (OutHit.Location - Start) / 2.f + Start, FVector(0.05, 0.05, OutHit.Distance / 100.f)));
 
-		if (OutHit.GetActor()->IsA(ALitUpLightTarget::StaticClass()))
+		if (OutHit.GetActor()->IsA(ALitUpLightTarget::StaticClass())) // CIBLE
 		{
 			//if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::`Green, TEXT("Target is getting hit!"));
 			//UE_LOG(LogLightRay, Display, TEXT("Target is getting hit!"));
 
-			goNext(false);
+			goNext(false); //Aucun nouveau rayon généré si on touche cet objet
 
 			Cast<ALitUpLightTarget>(OutHit.GetActor())->exec(wavelength);
 		}
-		else if (OutHit.GetActor()->IsA(ALitUpMirror::StaticClass()))
+		else if (OutHit.GetActor()->IsA(ALitUpMirror::StaticClass())) // RÉFLEXION
 		{
-			goNext(true);
+			goNext(true); //Généré un nouveau rayon si on touche cet objet
 
 			if (nextLightRay) Reflection(ForwardVector, OutHit.Normal, OutHit.Location);
 		}
-		else if (OutHit.GetActor()->IsA(ALitUpPrism::StaticClass())) // REFRACTION
+		else if (OutHit.GetActor()->IsA(ALitUpPrism::StaticClass())) // RÉFRACTION
 		{
-			goNext(true);
+			goNext(true); //Généré un nouveau rayon si on touche cet objet
 
 			if (nextLightRay) Refraction(ForwardVector, OutHit.Normal, OutHit.Location, currentRefractionIndex, Cast<ALitUpPrism>(OutHit.GetActor())->getRefractionIndex());
 		}
-		else if (OutHit.GetActor()->IsA(ALitUpDiffractor::StaticClass()))
+		else if (OutHit.GetActor()->IsA(ALitUpDiffractor::StaticClass())) // DIFFRACTION
 		{
-			goNext(false);
+			goNext(false); //Aucun nouveau rayon généré si on touche cet objet
 
 			Cast<ALitUpDiffractor>(OutHit.GetActor())->exec(wavelength);
 		}
 		else
 		{
-			goNext(false);
+			goNext(false); // Ne pas générer des rayons à l'infini
 
 			//if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, TEXT("No hit!"));
 			//UE_LOG(LogLightRay, Display, TEXT("No hit!"));
 		}
 	}
-	else
+	else //Si le raycast échoue, on définit des valeurs par défaut
 	{
 		LightRay->SetRelativeTransform(FTransform(FRotator(90, 0, 0), FVector(length / 2.f, 0, 0), FVector(0.05, 0.05, length / 100.f)));
 	}
 
-	if (!maxRays)
+	if (!maxRays) //Si l'émetteur a changé son nombre maximal de rayons, enlever ceux en trop
 	{
 		goNext(false);
 	}
 
-	if (nextLightRay)
+	if (nextLightRay) //Définir les paramètres pour que lorsqu'ils sont changés dans l'éditeur, le changement se fait en temps réel
 	{
 		nextLightRay->wavelength = wavelength;
 		nextLightRay->maxRays = maxRays - 1;
 	}
 
+	//Définir la couleur du laser dépendant de la longueur d'onde
 	dynamicLaserMaterialInstanceDynamic->SetVectorParameterValue(FName("LaserColor"), calculateColorFromWaveLength());
 }
 
@@ -137,24 +145,24 @@ bool ALitUpLightRay::ShouldTickIfViewportsOnly() const
 
 inline void ALitUpLightRay::goNext(bool goNext)
 {
-	if (next == true && goNext == true)
+	if (next == true && goNext == true) //Un rayon a déja été créé et on en a besoin
 	{
 		return;
 	}
-	else if (next == false && goNext == true && maxRays > 0)
+	else if (next == false && goNext == true && maxRays > 0) //Il n'y a pas de rayon et on en a besoin d'un et on n'est pas à la limite maximale de rayons
 	{
 		next = true;
 
 		FActorSpawnParameters sp;
-		sp.ObjectFlags = RF_Transient;
+		sp.ObjectFlags = RF_Transient; //Le rayon ne se fait pas sauvegarder
 		nextLightRay = GetWorld()->SpawnActor<ALitUpLightRay>(ALitUpLightRay::StaticClass(), sp);
-		nextLightRay->maxRays = maxRays - 1;
-		nextLightRay->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform);
+		nextLightRay->maxRays = maxRays - 1; //Définir le nombre maximal de rayons générés par le prochain rayon
+		nextLightRay->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform); //Attacher le nouveau rayon
 
 		//if (GEngine) GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Green, TEXT("New ray created!"));
 		//UE_LOG(LogLightRay, Display, TEXT("New ray created!"));
 	}
-	else
+	else //Pour tous les autres cas, enlever le prochain rayon s'il existe
 	{
 		next = false;
 
@@ -247,6 +255,7 @@ inline FVector ALitUpLightRay::calculateColorFromWaveLength()
 	double green = 0.0;
 	double blue = 0.0;
 
+	//Fonction par partie approximative des contributions r,g,b pour la couleur selon la longeur d'onde
 	if ((380.0 <= wavelength) && (wavelength <= 439.0))
 	{
 		red = -(wavelength - 440.0) / (440.0 - 380.0);
@@ -284,6 +293,7 @@ inline FVector ALitUpLightRay::calculateColorFromWaveLength()
 		blue = 0.0;
 	}
 
+	//Simuler les longeurs d'onde visibles, en diminuant l'intensité aux valeur extrêmes
 	double factor = 0.0;
 
 	if ((380.0 <= wavelength) && (wavelength <= 419.0))
@@ -295,6 +305,7 @@ inline FVector ALitUpLightRay::calculateColorFromWaveLength()
 	else
 		factor = 0.0;
 
+	//Ajuster le gamma
 	const double gamma = 0.8;
 	const double intensity_max = 100.0;
 
