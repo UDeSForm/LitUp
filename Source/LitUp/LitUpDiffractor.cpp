@@ -148,10 +148,10 @@ inline void ALitUpDiffractor::CalculerPatronDiffraction()
 		//Calcul de la couleur du patron de diffraction à créer
 		FVector colorPatron = calculateColorFromWaveLength();
 
-		//Ajustement de la taille de 
+		//Ajustement de la taille et initialisation du tableau de pixels du patron de diffraction
 		pixelsPatron.SetNumZeroed(size * size);
 
-		//
+		//La couleur de chaque pixel est entrée dans le tableau de pixels
 		for (int y = 0; y < size; y++)
 		{
 			for (int x = 0; x < size; x++)
@@ -162,6 +162,7 @@ inline void ALitUpDiffractor::CalculerPatronDiffraction()
 			}
 		}
 
+		//Création de la texture du patron de diffraction
 		patronDiffraction = UTexture2D::CreateTransient(size, size, PF_B8G8R8A8);
 		void* TextureData = patronDiffraction->GetPlatformData()->Mips[0].BulkData.Lock(LOCK_READ_WRITE);
 		FMemory::Memcpy(TextureData, pixelsPatron.GetData(), 4 * size * size);
@@ -172,6 +173,7 @@ inline void ALitUpDiffractor::CalculerPatronDiffraction()
 
 void ALitUpDiffractor::exec(float rayWaveLength)
 {
+	//Lorsque le diffracteur est atteint par un laser, si le laser est de la bonne couleur, on veut afficher le patron de diffraction
 	if (rayWaveLength == WaveLength)
 	{
 		showDecal = true;
