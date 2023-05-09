@@ -176,11 +176,16 @@ inline void ALitUpLightRay::goNext(bool goNext)
 
 inline void ALitUpLightRay::Reflection(const FVector& Direction, const FVector& SurfaceNormal, const FVector& Location)
 {
+	
+	// Tolérance limite afin d'éviter un calcul trop pointu
 	float tolerance = 0.01f;
 
+	// get taille du vecteur
 	float SquareSum = SurfaceNormal.X * SurfaceNormal.X + SurfaceNormal.Y * SurfaceNormal.Y + SurfaceNormal.Z * SurfaceNormal.Z;
 
 	FVector NormalizedNormal;
+
+	// Normalisation du vecteur de la normale
 
 	if (SquareSum > 1.f + tolerance || SquareSum < 1.f - tolerance)
 	{
@@ -191,8 +196,10 @@ inline void ALitUpLightRay::Reflection(const FVector& Direction, const FVector& 
 		NormalizedNormal = SurfaceNormal;
 	}
 
+	// Calcul du vecteur résultant
 	FVector reflection = Direction - 2 * (Direction | NormalizedNormal) * NormalizedNormal;
 
+	// Application du vecteur résultant sur le prochain rayon 
 	nextLightRay->SetActorTransform(FTransform(reflection.Rotation(), Location + (reflection * 0.0001)));
 }
 
