@@ -24,15 +24,19 @@ class LITUP_API ALitUpDiffractor : public AActor
 		UStaticMesh* DiffractorMeshAsset;
 
 	UPROPERTY(EditAnywhere)
+		//Longueur d'onde en nm
 		double WaveLength = 780;
 
 	UPROPERTY(EditAnywhere)
+		//Largeur en nm
 		double largeurFente = 100;
 
 	UPROPERTY(EditAnywhere)
+		//Hauteur en nm
 		double hauteurFente = 100;
 
 	UPROPERTY(EditAnywhere)
+		//taille en pixels du patron de diffraction
 		int size = 8192;
 
 	UPROPERTY(VisibleDefaultsOnly)
@@ -51,7 +55,9 @@ protected:
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+	//Fonction appelée une seule fois qui crée le patron
 	void CalculerPatronDiffraction();
+	//Fonction qui est appelée lorsque le diffracteur est atteint par un laser
 	void exec(float rayWaveLength);
 
 private:

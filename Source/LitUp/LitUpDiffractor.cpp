@@ -31,11 +31,15 @@ void ALitUpDiffractor::BeginPlay()
 	Super::BeginPlay();
 	Diffractor->SetStaticMesh(DiffractorMeshAsset);
 	
+	//Transient s'assure que le patron de diffraction ne sera pas sauvegardé comme un nouvel objet dans les fichiers du jeu
 	FActorSpawnParameters sp;
 	sp.ObjectFlags = RF_Transient;
+
+	//L'image décalquée est créée à l'origine du diffracteur
 	decal = GetWorld()->SpawnActor<ADecalActor>(Origin->GetComponentLocation(), FRotator(0.f,0.f,0.f), sp);
 	if (decal)
 	{
+		//L'image décalquée reçoit une taille par défaut, est cachée, et reçoit son matériel
 		decal->GetDecal()->DecalSize = FVector(50.0f, 50.0f, 50.0f);
 		decal->SetActorHiddenInGame(true);
 		decal->SetDecalMaterial(diffractionMaterial);
@@ -44,11 +48,12 @@ void ALitUpDiffractor::BeginPlay()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("No decal spawned"));
 	}
-
+	//Le patron de diffraction est calculé
 	CalculerPatronDiffraction();
 
 	if (decal)
 	{
+		//La texture du matériel précédemment appliqué à l'image décalquée est dynamiquement remplacée la texture du patron de diffraction calculé
 		UMaterialInstanceDynamic* dynamicDiffractionMaterialInstanceDynamic = decal->CreateDynamicMaterialInstance();
 		dynamicDiffractionMaterialInstanceDynamic->SetTextureParameterValue("Patron", patronDiffraction);
 		decal->SetDecalMaterial(dynamicDiffractionMaterialInstanceDynamic);
@@ -59,7 +64,9 @@ void ALitUpDiffractor::BeginPlay()
 void ALitUpDiffractor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	//S'il faut afficher le patron de diffraction, alors on change son statut de «caché»
 	if (decal) decal->SetActorHiddenInGame(!showDecal);
+	//On remet la booléenne qui nous indique de montrer le patron à faux
 	showDecal = false;
 }
 
@@ -79,6 +86,7 @@ bool ALitUpDiffractor::ShouldTickIfViewportsOnly() const
 
 inline void ALitUpDiffractor::CalculerPatronDiffraction()
 {
+	//Raycast en face du diffracteur
 	FVector Start = Origin->GetComponentLocation();
 	FVector ForwardVector = Origin->GetForwardVector();
 	FHitResult OutHit;
@@ -87,61 +95,77 @@ inline void ALitUpDiffractor::CalculerPatronDiffraction()
 	FCollisionQueryParams CollisionParams;
 	CollisionParams.bTraceComplex = true;
 
+	//Si le raycast atteint une cible (le mur), alors on effectue la création du patron de diffraction
 	if (GetWorld()->LineTraceSingleByChannel(OutHit, Start, End, ECC_WorldStatic, CollisionParams))
 	{
-		//DrawDebugLine(GetWorld(), Start, OutHit.Location, FColor::Green, true, 0.04, 0, 10);
-
+		//Ceci nous assure de sortir l'image décalquée en dehors du diffracteur
 		Start += ForwardVector * 100.f;
 
+		//Ajustement de l'image décalquée au patron de diffraction désiré
 		decal->SetActorTransform(FTransform(FRotator(0, 0, 90) + ForwardVector.Rotation(), (OutHit.Location - Start) / 2.f + Start + ForwardVector * 0.01, FVector(OutHit.Distance / 100.f, OutHit.Distance / 100.f, OutHit.Distance / 100.f)));
 
 		// Credits: Petr Klapetek http://gsvit.net/tutorial/a_grating.php
 		
+		//Deux fois la distance diffracteur-mur en m
 		double r2 = OutHit.Distance / (double)50;
-		double p = largeurFente;
-		double q = hauteurFente;
-		int ccx = size / 2;
-		int ccy = size / 2;
+
+		double largeur = largeurFente;
+		double hauteur = hauteurFente;
+
+		int pixelCentral = size / 2;
+
+		//Ajuste en fonction d'une longueur d'onde exprimée en m
 		double k = ((double)2 * PI) / (WaveLength / (double)1000000000);
 
-		double Apq = (0.01 / r2) * p * q;
-		p /= (double)1000000000;
-		q /= (double)1000000000;
-		double kpoverr2 = (k * p) / r2;
-		double kqoverr2 = (k * q) / r2;
+		//Permet à l'image d'être d'une bonne taille par rapport à la distance diffracteur-mur
+		double Alh = (0.01 / r2) * largeur * hauteur;
 
+		//Exprime la largeur et la hauteur de la fente en m
+		largeur /= (double)1000000000;
+		hauteur /= (double)1000000000;
+
+		double kloverr2 = (k * largeur) / r2;
+		double khoverr2 = (k * hauteur) / r2;
+
+		//La fonction d'intensité de lumière en fonction de la distance en x
 		TArray<double> xwave;
 		xwave.SetNumZeroed(size);
-		for (int x = -ccx; x < ccx; x++)
+		for (int x = -pixelCentral; x < pixelCentral; x++)
 		{
-			double kpxoverr2 = kpoverr2 * x;
-			xwave[x + ccx] = sin((float)kpxoverr2) / kpxoverr2;
+			double klxoverr2 = kloverr2 * x;
+			xwave[x + pixelCentral] = sin((float)klxoverr2) / klxoverr2;
 		}
 
+		//La fonction d'intensité de lumière en fonction de la distance en y
 		TArray<double> ywave;
 		ywave.SetNumZeroed(size);
-		for (int y = -ccy; y < ccy; y++)
+		for (int y = -pixelCentral; y < pixelCentral; y++)
 		{
-			double kqyoverr2 = kqoverr2 * y;
-			ywave[y + ccy] = sin((float)kqyoverr2) / kqyoverr2;
+			double khyoverr2 = khoverr2 * y;
+			ywave[y + pixelCentral] = sin((float)khyoverr2) / khyoverr2;
 		}
 
+		//Calcul de la couleur du patron de diffraction à créer
 		FVector colorPatron = calculateColorFromWaveLength();
+
+		//Ajustement de la taille de 
 		pixelsPatron.SetNumZeroed(size * size);
+
+		//
 		for (int y = 0; y < size; y++)
 		{
 			for (int x = 0; x < size; x++)
 			{
-				double sqrtresult = Apq * xwave[x] * ywave[y];
+				double sqrtresult = Alh * xwave[x] * ywave[y];
 				double result = sqrtresult * sqrtresult;
 				pixelsPatron[x + y * size] = FColor(colorPatron.X, colorPatron.Y, colorPatron.Z, result * 128);
 			}
 		}
 
 		patronDiffraction = UTexture2D::CreateTransient(size, size, PF_B8G8R8A8);
-		void* TextureData = patronDiffraction->PlatformData->Mips[0].BulkData.Lock(LOCK_READ_WRITE);
+		void* TextureData = patronDiffraction->GetPlatformData()->Mips[0].BulkData.Lock(LOCK_READ_WRITE);
 		FMemory::Memcpy(TextureData, pixelsPatron.GetData(), 4 * size * size);
-		patronDiffraction->PlatformData->Mips[0].BulkData.Unlock();
+		patronDiffraction->GetPlatformData()->Mips[0].BulkData.Unlock();
 		patronDiffraction->UpdateResource();
 	}
 }
