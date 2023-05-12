@@ -58,11 +58,12 @@ void ALitUpLightRay::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	//Faire un raycast à partir de l'origine de longeur length
+	//Faire un raycast à partir de l'origine qui est de longueur length
 	FVector Start = Origin->GetComponentLocation();
 	FVector ForwardVector = Origin->GetForwardVector();
-	FHitResult OutHit;
 	FVector End = ((ForwardVector * length) + Start);
+
+	FHitResult OutHit;
 
 	FCollisionQueryParams CollisionParams;
 	CollisionParams.bTraceComplex = true; //On veut faire des raycast qui obtiennent des résultats même s'ils commencent à l'intérieur d'un objet
@@ -145,7 +146,7 @@ bool ALitUpLightRay::ShouldTickIfViewportsOnly() const
 
 inline void ALitUpLightRay::goNext(bool goNext)
 {
-	if (next == true && goNext == true) //Un rayon a déja été créé et on en a besoin
+	if (next == true && goNext == true) //Un rayon a déjà été créé et on en a besoin
 	{
 		return;
 	}
@@ -255,7 +256,7 @@ inline FVector ALitUpLightRay::calculateColorFromWaveLength()
 	double green = 0.0;
 	double blue = 0.0;
 
-	//Fonction par partie approximative des contributions r,g,b pour la couleur selon la longeur d'onde
+	//Fonction par partie approximative des contributions r,g,b pour la couleur selon la longueur d'onde
 	if ((380.0 <= wavelength) && (wavelength <= 439.0))
 	{
 		red = -(wavelength - 440.0) / (440.0 - 380.0);
@@ -293,7 +294,7 @@ inline FVector ALitUpLightRay::calculateColorFromWaveLength()
 		blue = 0.0;
 	}
 
-	//Simuler les longeurs d'onde visibles, en diminuant l'intensité aux valeur extrêmes
+	//Simuler les longueurs d'onde visibles, en diminuant l'intensité aux valeur extrêmes
 	double factor = 0.0;
 
 	if ((380.0 <= wavelength) && (wavelength <= 419.0))
